@@ -13,24 +13,16 @@ enum layer_names { // Enum over macro definition, i.e. #define BASE 0, to optimi
     _ADJUST // = 6
 };
 
+#define ALL_      ALL_T(KC_NO) 
 #define MEH_F13   MEH_T(KC_F13)
+#define CS_F14    C_S_T(KC_F14)
 #define FNT_PSCR  LT(_FN,KC_PSCR)
 #define FNT_BSLS  LT(_FN,KC_BSLS)
-#define NAVM_CTL  LM(_NAV, MOD_LCTL)
-#define NAVM_SFT  LM(_NAV, MOD_LSFT)
 #define NUMT_SCLN LT(_NUM, KC_SCLN)
-#define CS_F14    C_S_T(KC_F14)
-#define ALL_      ALL_T(KC_NO) 
-//#define MEH_     MEH(KC_NO)
 
-#define CTLRT   LCTL(KC_RGHT)
-#define CTLLFT  LCTL(KC_LEFT)
 #define CTLC    LCTL(KC_C)
-#define CTLZ    LCTL(KC_Z)
-#define CTLV    LCTL(KC_V)
 #define CTLX    LCTL(KC_X)
 #define CTLF    LCTL(KC_F)
-#define CTLY    LCTL(KC_Y)
 
 enum custom_keycodes {
   PLACEHOLDER = SAFE_RANGE,
@@ -366,7 +358,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       _______,  XXXXXXX,  VIM_W,    VIM_E,    VIM_R,    XXXXXXX,  XXXXXXX,             KC_MUTE,  TD(VIM_y),VIM_U,    VIM_I,    VIM_O,     VIM_P,     XXXXXXX, 
       XXXXXXX,  VIM_A,    VIM_S,    TD(VIM_d),XXXXXXX,  XXXXXXX,  KC_PSCR,             KC_MPLY,  VIM_H,    VIM_J,    VIM_K,    VIM_L,     XXXXXXX,   XXXXXXX, 
       _______,  XXXXXXX,  VIM_X,    VIM_C,    VIM_V,    VIM_B,    _______,             _______,  KC_MPRV,  KC_VOLD,  KC_VOLU,  KC_MNXT,   CTLF,    _______, 
-      NAVM_CTL, _______,  _______,  _______,  _______,  _______,  _______,             _______,  _______,  _______,  XXXXXXX,  _______,   _______, TO(_BASE)
+      _______,  _______,  _______,  _______,  _______,  _______,  _______,             _______,  _______,  _______,  XXXXXXX,  _______,   _______, TO(_BASE)
       ),
 
 
@@ -731,8 +723,6 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 }
 bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
-    case TT(_VIM):
-      return true;
     case NUMT_SCLN:
       // Immediately select the hold action when another key is tapped
       return true;
