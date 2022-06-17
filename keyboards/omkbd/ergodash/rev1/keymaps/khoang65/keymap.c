@@ -8,7 +8,7 @@ enum layer_names { // Enum over macro definition, i.e. #define BASE 0, to optimi
     _FN, // = 1
     _NUM, // = 2
     _VIM, // = 3
-    _NAV, // = 4
+    _VIM2, // = 4
     _SYM, // = 5
     _ADJUST // = 6
 };
@@ -379,7 +379,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    *                                         | TRNS    |         |         |          |         |         | TRNS    |
    *                                         `-----------------------------'          `-----------------------------'                                      */
 
-  [_NAV] = LAYOUT_4key_2u_inner(
+  [_VIM2] = LAYOUT_4key_2u_inner(
       _______,  _______,  _______,  _______,  _______,  _______,  _______,             _______,  XXXXXXX,  _______,  _______,  XXXXXXX,  _______,  _______, 
       _______,  _______,  _______,  _______,  _______,  _______,  _______,             XXXXXXX,  VIM_Y,    _______,  _______,  _______,  _______,  KC_CAPS, 
       _______,  _______,  _______,  VIM_D,    _______,  _______,  _______,             XXXXXXX,  VIM_H,    VIM_J,    VIM_K,    VIM_L,    _______,  _______,
@@ -484,7 +484,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     } else {
       layer_off(_VIM);
       if (timer_elapsed(LT_TO_VIM_TIMER) < TAPPING_TERM) {  
-        layer_invert(_VIM);
+        layer_invert(_VIM2);
       }
     }
     return true; 
