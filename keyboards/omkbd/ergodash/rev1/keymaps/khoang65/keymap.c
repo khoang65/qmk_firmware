@@ -35,6 +35,7 @@ enum layer_names { // Enum over macro definition, i.e. #define BASE 0, to optimi
 enum custom_keycodes {
   PLACEHOLDER = SAFE_RANGE,
   OFF_ESC,
+  LT_TO_VIM,
   /* VIM Cursor Movement */
   KC_SOL, 
   /* VIM Visual/Cut and Paste */
@@ -71,6 +72,7 @@ enum custom_keycodes {
 #define RELEASE(keycode) unregister_code16(keycode)
 
 uint16_t VIM_QUEUE = KC_NO;
+uint16_t LT_TO_VIM_TIMER;
 
 void VIM_LEFT(void); // repeatable
 void VIM_DOWN(void); // repeatable
@@ -287,7 +289,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_F4,               KC_EQL,   KC_Y,     KC_U,     KC_I,      KC_O,     KC_P,    KC_LEAD, 
       KC_GRV,   KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     FNT_PSCR,            FNT_BSLS, KC_H,     KC_J,     KC_K,      KC_L,     NUMT_SCLN,KC_QUOT,
       KC_LSFT,  KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_NO,               KC_NO,    KC_N,     KC_M,     KC_COMM,   KC_DOT,   KC_SLSH, KC_RSFT, 
-      KC_LCTL,  MEH_F13,  KC_LGUI,  KC_LALT,  KC_SPC,   KC_DEL,   CS_F14,              MO(_VIM), KC_ENT,   KC_BSPC,  ALL_,      KC_F15,   KC_F16,  TT(_NUM)
+      KC_LCTL,  MEH_F13,  KC_LGUI,  KC_LALT,  KC_SPC,   KC_DEL,   CS_F14,              LT_TO_VIM,KC_ENT,   KC_BSPC,  ALL_,      KC_F15,   KC_F16,  TT(_NUM)
       ),
   
 
@@ -477,7 +479,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         // Do something when released; typically unregister code to keep the KC held while pressed
         unregister_code(KC_ESC);
       }
-      return false;
+    return false;
+
+    case LT_TO_VIM:                                  
+    if(pressed){
+      LT_TO_VIM_TIMER = timer_read();
+      layer_on(_VIM);
+    } else {
+      layer_off(_VIM);
+      if (timer_elapsed(LT_TO_VIM_TIMER) < TAPPING_TERM) {  
+        layer_invert(_VIM);
+      }
+    }
+    return true; 
 
     case KC_dd_CUT_LINE:
       if (pressed) {
@@ -521,7 +535,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     /* VIM */
     case VIM_A:
-      if (pressed) { SHIFTED ? VIM_APPEND_LINE() : VIM_APPEND(); }
+      if (pressed) { SHIFTED ? RELEASE(KC_LSHIFT), VIM_APPEND_LINE() : VIM_APPEND(); }
       return false;
 
     case VIM_B:
@@ -541,7 +555,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case VIM_C:
       if (pressed) {
         switch(VIM_QUEUE) {
-          case KC_NO: SHIFTED ? VIM_CHANGE_TO_EOL() : VIM_LEADER(VIM_C); break;
+          case KC_NO: SHIFTED ? RELEASE(KC_LSHIFT), VIM_CHANGE_TO_EOL() : VIM_LEADER(VIM_C); break;
           case VIM_C: VIM_CHANGE_WHOLE_LINE(); break;
         }
       }
@@ -550,7 +564,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case VIM_D:
       if (pressed) {
         switch(VIM_QUEUE) {
-          case KC_NO: SHIFTED ? VIM_DELETE_TO_EOL() : VIM_LEADER(VIM_D); break;
+          case KC_NO: SHIFTED ? RELEASE(KC_LSHIFT), VIM_DELETE_TO_EOL() : VIM_LEADER(VIM_D); break;
           case VIM_D: VIM_DELETE_WHOLE_LINE(); break;
         }
       }
@@ -600,7 +614,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case VIM_J:
       if (pressed) {
         switch (VIM_QUEUE) {
-          case KC_NO: SHIFTED ? VIM_JOIN() : PRESS(KC_DOWN); break;
+          case KC_NO: SHIFTED ? RELEASE(KC_LSHIFT), VIM_JOIN() : PRESS(KC_DOWN); break;
           case VIM_C: VIM_CHANGE_DOWN(); break;
           case VIM_D: VIM_DELETE_DOWN(); break;
           case VIM_V: VIM_VISUAL_DOWN(); break;
@@ -640,15 +654,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
 
     case VIM_O:
-      if (pressed) { SHIFTED ? VIM_OPEN_ABOVE() : VIM_OPEN(); }
+      if (pressed) { SHIFTED ? RELEASE(KC_LSHIFT), VIM_OPEN_ABOVE() : VIM_OPEN(); }
       return false;
 
     case VIM_P:
-      if (pressed) { SHIFTED ? VIM_PUT_BEFORE() : VIM_PUT_AFTER(); }
+      if (pressed) { SHIFTED ? RELEASE(KC_LSHIFT), VIM_PUT_BEFORE() : VIM_PUT_AFTER(); }
       return false;
 
     case VIM_S:
-      if (pressed) { SHIFTED ? VIM_CHANGE_WHOLE_LINE() : VIM_SUBSTITUTE(); }
+      if (pressed) { SHIFTED ? RELEASE(KC_LSHIFT), VIM_CHANGE_WHOLE_LINE() : VIM_SUBSTITUTE(); }
       return false;
 
     case VIM_U:
@@ -682,7 +696,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case VIM_Y:
       if (pressed) { 
         switch(VIM_QUEUE) {
-          case KC_NO: SHIFTED ? VIM_YANK_TO_EOL() : VIM_YANK(); break;
+          case KC_NO: SHIFTED ? RELEASE(KC_LSHIFT),VIM_YANK_TO_EOL() : VIM_YANK(); break;
           case VIM_Y: VIM_YANK_WHOLE_LINE(); break;
         }
       }
@@ -706,6 +720,8 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 }
 bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
+    case TT(_VIM):
+      return true;
     case NUMT_SCLN:
       // Immediately select the hold action when another key is tapped
       return true;
@@ -1180,11 +1196,9 @@ void VIM_DELETE_TO_EOL(void) {
   print("\e[31mD\e[0m");
   VIM_LEADER(KC_NO);
   PRESS(KC_LSFT);
-  TAP(KC_END);
+    TAP(KC_END);
   RELEASE(KC_LSFT);
-  PRESS(KC_LCTL);
-  TAP(KC_X);
-  RELEASE(KC_LCTL); 
+  CTRL(KC_X);
 }
 
 /**
@@ -1262,6 +1276,7 @@ void VIM_YANK_END(void) {
     SHIFT(KC_RIGHT); // select to end of this word
   RELEASE(KC_LCTL);
   CTRL(KC_C);
+  TAP(KC_LEFT); // return cursor
 }
 
 /**
@@ -1274,7 +1289,8 @@ void VIM_YANK_WHOLE_LINE(void) {
   VIM_LEADER(KC_NO);
   TAP(KC_HOME);
   TAP(KC_HOME);
-  VIM_YANK_TO_EOL(); 
+  VIM_YANK_TO_EOL();
+  // find a way to return cursor
 }
 
 /**
@@ -1291,6 +1307,7 @@ void VIM_YANK_WORD(void) {
     SHIFT(KC_LEFT); // select to start of next word
   RELEASE(KC_LCTL);
   CTRL(KC_C); // yank selection
+  TAP(KC_LEFT); // return cursor
 }
 
 /**
@@ -1303,8 +1320,9 @@ void VIM_YANK_BACK(void) {
   VIM_LEADER(KC_NO);
   PRESS(KC_LCTL);
     SHIFT(KC_LEFT); // select to start of word
-    SHIFT(KC_DEL); // yank selection
+    TAP(KC_C); // yank selection
   RELEASE(KC_LCTL);
+  TAP(KC_RIGHT); // return cursor
 }
 
 /**
@@ -1317,6 +1335,7 @@ void VIM_YANK_LEFT(void) {
   VIM_LEADER(KC_NO);
   SHIFT(KC_LEFT);
   CTRL(KC_C);
+  TAP(KC_RIGHT); // return cursor
 }
 
 /**
@@ -1329,6 +1348,7 @@ void VIM_YANK_RIGHT(void) {
   VIM_LEADER(KC_NO);
   SHIFT(KC_RIGHT);
   CTRL(KC_C);
+  TAP(KC_LEFT); // return cursor
 }
 
 /**
@@ -1339,6 +1359,7 @@ void VIM_YANK_RIGHT(void) {
 void VIM_YANK_UP(void) {
   print("\e[31myk\e[0m");
   VIM_LEADER(KC_NO);
+  SHIFT(KC_UP);
   TAP(KC_UP);
   VIM_YANK_TO_EOL();
 }

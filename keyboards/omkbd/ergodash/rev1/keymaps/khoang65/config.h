@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* Use I2C or Serial, not both */
 #define USE_SERIAL
 
-/* Select hand configuration */
+/* Select hand config */
 #define MASTER_LEFT
 
 /* Bootloader mode config */
@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define BOOTMAGIC_LITE_COLUMN 0 // default esc
 #endif // !BOOTMAGIC_ENABLE
 
+/* N-key rollover config */
 /*
 #ifdef NKRO_ENABLE
 #undef FORCE_NKRO
@@ -39,23 +40,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif // !NKRO_ENABLE
 */
 
-/**/
+/* Polling rate and keys per scan for video games */
 #define USB_POLLING_INTERVAL_MS 1 // Set polling to 1000Hz
-#define QMK_KEYS_PER_SCAN 4 // By default, only one key event gets sent via process_record() per scan
+#define QMK_KEYS_PER_SCAN 4 // By default, only 1 key event gets sent via process_record() per scan
 
 /* Defines what is considered a hold vs tap, affects both Mod Tap and Tap Dance */
 #undef TAPPING_TERM
 #define TAPPING_TERM 120 // QMK default 200; omkb/ergodash/rev1 default 120
 #define TAPPING_TERM_PER_KEY // Used in conjunction with get_tapping_term() to finetune
 
-/* If no other key is pressed with mod, still sends input even after tapping term window*/
+/* If no other key is pressed with mod, still sends input even after tapping term window */
 #undef RETRO_TAPPING_PER_KEY
 #define RETRO_TAPPING_PER_KEY
 
 /* Slightly changes dual-role keys, more responsive for faster keystrokes */
+/*
 #undef PERMISSIVE_HOLD
 #define PERMISSIVE_HOLD
-// #define PERMISSIVE_HOLD_PER_KEY // Used in conjuction with get_permissive_hold() to finetune
+#define PERMISSIVE_HOLD_PER_KEY // Used in conjuction with get_permissive_hold() to finetune
+*/
 
 /* Select Leader Key Timeout (ms) */
 #undef LEADER_TIMEOUT
