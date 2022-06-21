@@ -40,6 +40,7 @@ enum custom_keycodes {
   VIM_D,
   VIM_DI,
   VIM_E,
+  VIM_F,
   VIM_G,
   VIM_H,
   VIM_I,
@@ -154,7 +155,7 @@ void VIM_LEADER(uint16_t keycode) {
   }
 }
 
-// ** Press KC Helper Functions ** //
+// ** Keycode Helper Functions ** //
 #define PRESS(keycode) register_code16(keycode)
 #define RELEASE(keycode) unregister_code16(keycode)
 
@@ -187,6 +188,14 @@ void ALT(uint16_t keycode) {
   RELEASE(KC_LALT);
 }
 
+void RELEASE_MODS(void) {
+  RELEASE(KC_LSHIFT);
+  RELEASE(KC_RSHIFT);
+  RELEASE(KC_LCTRL);
+  RELEASE(KC_RCTRL);
+  RELEASE(KC_LALT);
+  RELEASE(KC_RALT);
+}
 // ** TAP DANCE Definitions ** //
 typedef enum {
     TD_NONE,
@@ -498,8 +507,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case TD_dd:
       if (CTRLED && pressed) {
-        RELEASE(KC_LCTL);
-        RELEASE(KC_RCTL);
+        RELEASE(KC_LCTL); RELEASE(KC_RCTL);
         VIM_SCROLL_HALF_DOWN();
       } else if (pressed) {
         TAP(KC_HOME);
@@ -552,7 +560,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case VIM_B:
       if (pressed) {
         switch(VIM_QUEUE) {
-          case KC_NO: CTRLED ? VIM_SCROLL_FULL_BACK : PRESS(KC_LCTRL); PRESS(KC_LEFT); break;
+          case KC_NO: CTRLED ? RELEASE(KC_LCTL), RELEASE(KC_RCTL), VIM_SCROLL_FULL_BACK : PRESS(KC_LCTRL); PRESS(KC_LEFT); break;
           case VIM_C: VIM_CHANGE_BACK(); break;
           case VIM_D: VIM_DELETE_BACK(); break;
           case VIM_V: VIM_VISUAL_BACK(); break;
@@ -605,6 +613,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
         RELEASE(KC_RIGHT);
         RELEASE(KC_LCTL);
+      }
+      return false;
+    
+    case VIM_F:
+      if (CTRLED && pressed) {
+        RELEASE(KC_LCTL);
+        RELEASE(KC_RCTL);
+        VIM_SCROLL_FULL_FORWARD();
       }
       return false;
     
@@ -702,7 +718,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
 
     case VIM_U:
-      if (pressed) { VIM_UNDO(); }
+      if (pressed) { CTRLED ? RELEASE(KC_LCTL), RELEASE(KC_RCTL), VIM_SCROLL_HALF_UP() : VIM_UNDO(); }
       return false;
 
     case VIM_V:
