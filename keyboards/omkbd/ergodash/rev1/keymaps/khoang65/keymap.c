@@ -28,11 +28,11 @@ enum custom_keycodes {
   PLACEHOLDER = SAFE_RANGE,
   OFF_ESC,
   LT_TO_VIM,
-  VIM_0, // KC_SOL, // VIM_0
-  VIM_4, // $ jump to EoL
-  VIM_6, // ^ jump to first nonblank SoL, end->home
-  TD_yy, // TD keycode
-  TD_dd, // TD keycode
+  TD_yy,
+  TD_dd,
+  VIM_0,
+  VIM_4, // $ 
+  VIM_6, // ^  
   VIM_A,
   VIM_B,
   VIM_C,
@@ -460,7 +460,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   bool pressed = record->event.pressed;
   bool SHIFTED = (keyboard_report->mods & MOD_BIT(KC_LSFT)) | (keyboard_report->mods & MOD_BIT(KC_RSFT));
-  //bool CTRLED = (keyboard_report->mods & MOD_BIT(KC_LCTL)) | (keyboard_report->mods & MOD_BIT(KC_RCTL));
+  bool CTRLED = (keyboard_report->mods & MOD_BIT(KC_LCTL)) | (keyboard_report->mods & MOD_BIT(KC_RCTL));
 
   switch (keycode) {
 
@@ -469,7 +469,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         switch(VIM_QUEUE){
           case VIM_R: VIM_LEFT(); break;
           default: 
-            register_code(KC_ESC);
+            PRESS(KC_ESC);
             caps_word_off();
             layer_move(_BASE);
             if(IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
@@ -478,10 +478,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             VIM_LEADER(KC_NO);
           break;
         }
-        
       } else {
         // Do something when released; typically unregister code to keep the KC held while pressed
-        unregister_code(KC_ESC);
+        RELEASE(KC_ESC);
       }
     return false;
 
@@ -498,33 +497,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true; 
 
     case TD_dd:
-      if (pressed) {
-        tap_code(KC_HOME);
-        tap_code(KC_HOME);
-        register_code(KC_LSFT);
-        tap_code(KC_END);
-        unregister_code(KC_LSFT);
-        register_code(KC_LCTL);
-        register_code(KC_X); 
-      } else {
-        unregister_code(KC_X);
-        unregister_code(KC_LCTL);
+      if (CTRLED && pressed) {
+        RELEASE(KC_LCTL);
+        RELEASE(KC_RCTL);
+        VIM_SCROLL_HALF_DOWN();
+      } else if (pressed) {
+        TAP(KC_HOME);
+        TAP(KC_HOME);
+        SHIFT(KC_END);
+        PRESS(KC_LCTL);
+        CTRL(KC_X);
       }
       return false;
 
     case TD_yy:
       if (pressed) {
-        tap_code(KC_HOME);
-        tap_code(KC_HOME);
-        register_code(KC_LSFT);
-        tap_code(KC_END);
-        unregister_code(KC_LSFT);
-        register_code(KC_LCTL);
-        tap_code(KC_C);
-        register_code(KC_LEFT);
+        TAP(KC_HOME);
+        TAP(KC_HOME);
+        PRESS(KC_LSFT);
+        TAP(KC_END);
+        RELEASE(KC_LSFT);
+        CTRL(KC_C);
+        PRESS(KC_RIGHT);
       } else {
-        unregister_code(KC_LEFT);
-        unregister_code(KC_LCTL);
+        RELEASE(KC_RIGHT);
       }
       return false;
 
@@ -536,14 +532,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
     
     case VIM_4:
-      if (pressed && SHIFTED) {
+      if (SHIFTED && pressed) {
         RELEASE(KC_LSHIFT); RELEASE(KC_RSHIFT);
         VIM_END_OF_LINE();
       }
       return false;
     
     case VIM_6:
-      if (pressed && SHIFTED) {
+      if (SHIFTED && pressed) {
         RELEASE(KC_LSHIFT);
         VIM_BEGINNING_OF_LINE();
       }
@@ -556,7 +552,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case VIM_B:
       if (pressed) {
         switch(VIM_QUEUE) {
-          case KC_NO: PRESS(KC_LCTRL); PRESS(KC_LEFT); break;
+          case KC_NO: CTRLED ? VIM_SCROLL_FULL_BACK : PRESS(KC_LCTRL); PRESS(KC_LEFT); break;
           case VIM_C: VIM_CHANGE_BACK(); break;
           case VIM_D: VIM_DELETE_BACK(); break;
           case VIM_V: VIM_VISUAL_BACK(); break;
@@ -579,7 +575,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case VIM_D:
       if (pressed) {
         switch(VIM_QUEUE) {
-          case KC_NO: SHIFTED ? RELEASE(KC_LSHIFT), RELEASE(KC_RSHIFT), VIM_DELETE_TO_EOL() : VIM_LEADER(VIM_D); break;
+          case KC_NO: 
+            if (SHIFTED) {
+              RELEASE(KC_LSHIFT); 
+              RELEASE(KC_RSHIFT);
+              VIM_DELETE_TO_EOL();
+            } else if (CTRLED) {
+              RELEASE(KC_LCTL);
+              RELEASE(KC_RCTL);
+              VIM_SCROLL_HALF_DOWN();
+            } else {
+              VIM_LEADER(VIM_D);
+            }
+            break;
           case VIM_D: VIM_DELETE_WHOLE_LINE(); break;
         }
       }
