@@ -9,10 +9,11 @@ RGB_MATRIX_ENABLE = no
 LEADER_ENABLE = yes
 TAP_DANCE_ENABLE = yes
 CAPS_WORD_ENABLE = yes
+# Mouse Key; ~5%, 600 byte
+MOUSEKEY_ENABLE = yes
 
 # Firmware Size Optimizations
 EXTRAFLAGS += -flto
-MOUSEKEY_ENABLE = no
 SPACE_CADET_ENABLE = no
 BLUETOOTH_ENABLE = no
 OLED_DRIVER_ENABLE = no
