@@ -13,3 +13,5 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+make --jobs=1 omkbd/ergodash/rev1:khoang65
