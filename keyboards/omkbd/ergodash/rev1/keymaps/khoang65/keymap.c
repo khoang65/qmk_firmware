@@ -1,160 +1,13 @@
 ﻿#include QMK_KEYBOARD_H
+#include "khoang65.h"
+#include "vim_dows.h"
+#include "tap_dance.c"
 
 bool isLeader = false;
 bool onMac = false;
 bool isShiftPressed = false; // flags to determine if the key is currently held instead of registered 
 bool isCtrlPressed = false;  //   used so modifiers can be held to send repeated modifier vim macros 
 
-enum layer_names {
-    _BASE = 0,
-    _FN,   // = 1
-    _VIMTOGGLE, // = 2
-    _NUM,  // = 3
-    _VIM,  // = 4
-    _SYM,  // = 5
-    _ADJUST// = 6
-};
-
-#define ALL_      ALL_T(KC_NO) 
-#define MEH_F13   MEH_T(KC_F13)
-#define CS_F14    C_S_T(KC_F14)
-#define FNT_PSCR  LT(_FN,KC_PSCR)
-#define FNT_BSLS  LT(_FN,KC_BSLS)
-
-#define CTLC    LCTL(KC_C)
-#define CTLX    LCTL(KC_X)
-#define CTLF    LCTL(KC_F)
-
-enum custom_keycodes {
-  PLACEHOLDER = SAFE_RANGE,
-  OFF_ESC,
-  LT_TO_VIM,
-  TD_yy,
-  TD_dd,
-  VIM_0,
-  VIM_4, // $ 
-  VIM_6, // ^  
-  VIM_A,
-  VIM_B,
-  VIM_C,
-  VIM_CI,
-  VIM_D,
-  VIM_DI,
-  VIM_E,
-  VIM_F,
-  VIM_G,
-  VIM_H,
-  VIM_I,
-  VIM_J,
-  VIM_K,
-  VIM_L,
-  VIM_O,
-  VIM_P,
-  VIM_R,
-  VIM_S,
-  VIM_U,
-  VIM_V,
-  VIM_VI,
-  VIM_W,
-  VIM_X,
-  VIM_Y,
-  VIM_YI,
-};
-
-// **  VIM Definitions ** //
-uint16_t VIM_QUEUE = KC_NO;
-uint16_t LT_TO_VIM_TIMER;
-
-void VIM_LEFT(void); // repeatable
-void VIM_DOWN(void); // repeatable
-void VIM_UP(void); // repeatable
-void VIM_RIGHT(void); // repeatable
-void VIM_BEGINNING(void); // repeatable
-void VIM_WORD(void);
-void VIM_END(void); // repeatable
-void VIM_START_OF_LINE(void);
-void VIM_BEGINNING_OF_LINE(void);
-void VIM_END_OF_LINE(void);
-
-void VIM_SCROLL_HALF_DOWN(void);
-void VIM_SCROLL_HALF_UP(void);
-void VIM_SCROLL_FULL_FORWARD(void);
-void VIM_SCROLL_FULL_BACK(void);
-void VIM_FIRST_LINE(void);
-void VIM_LAST_LINE(void);
-
-void VIM_APPEND(void);
-void VIM_APPEND_LINE(void);
-void VIM_CHANGE_BACK(void);
-void VIM_CHANGE_DOWN(void);
-void VIM_CHANGE_END(void);
-void VIM_CHANGE_INNER_WORD(void);
-void VIM_CHANGE_LEFT(void);
-void VIM_CHANGE_TO_EOL(void);
-void VIM_CHANGE_RIGHT(void);
-void VIM_CHANGE_UP(void);
-void VIM_CHANGE_WHOLE_LINE(void);
-void VIM_CHANGE_WORD(void);
-void VIM_CUT(void); 
-void VIM_DELETE_BACK(void);
-void VIM_DELETE_DOWN(void);
-void VIM_DELETE_END(void);
-void VIM_DELETE_INNER_WORD(void);
-void VIM_DELETE_LEFT(void);
-void VIM_DELETE_TO_EOL(void);
-void VIM_DELETE_RIGHT(void);
-void VIM_DELETE_UP(void);
-void VIM_DELETE_WHOLE_LINE(void);
-void VIM_DELETE_WORD(void);
-void VIM_JOIN(void);
-void VIM_OPEN(void);
-void VIM_OPEN_ABOVE(void);
-void VIM_PUT_AFTER(void); 
-void VIM_PUT_BEFORE(void); // repeatable
-void VIM_REPLACE(void);
-void VIM_SUBSTITUTE(void);
-void VIM_UNDO(void); // repeatable
-void VIM_VISUAL_BACK(void);
-void VIM_VISUAL_DOWN(void);
-void VIM_VISUAL_END(void);
-void VIM_VISUAL_INNER_WORD(void);
-void VIM_VISUAL_LEFT(void);
-void VIM_VISUAL_RIGHT(void);
-void VIM_VISUAL_UP(void);
-void VIM_VISUAL_WORD(void);
-void VIM_YANK(void);
-void VIM_YANK_BACK(void);
-void VIM_YANK_DOWN(void);
-void VIM_YANK_END(void);
-void VIM_YANK_INNER_WORD(void);
-void VIM_YANK_LEFT(void);
-void VIM_YANK_TO_EOL(void);
-void VIM_YANK_RIGHT(void);
-void VIM_YANK_UP(void);
-void VIM_YANK_WHOLE_LINE(void);
-void VIM_YANK_WORD(void);
-
-/**
- * Sets the `VIM_QUEUE` variable to the incoming keycode.
- * Pass `KC_NO` to cancel the operation.
- * @param keycode
- */
-void VIM_LEADER(uint16_t keycode) {
-  VIM_QUEUE = keycode;
-  switch(keycode) {
-    case VIM_C: print("\e[32mc\e[0m"); break;
-    case VIM_CI: print("\e[32mci\e[0m"); break;
-    case VIM_D: print("\e[32md\e[0m"); break;
-    case VIM_DI: print("\e[32mdi\e[0m"); break;
-    case VIM_G: print("\e[32mg\e[0m"); break;
-    case VIM_R: print("\e[32mr\e[0m"); break;
-    case VIM_V: print("\e[32mv\e[0m"); break;
-    case VIM_VI: print("\e[32mvi\e[0m"); break;
-    case VIM_Y: print("\e[32my\e[0m"); break;
-    case VIM_YI: print("\e[32myi\e[0m"); break;
-    case KC_NO: print("❎"); break;
-  }
-}
 
 // ** Keycode Helper Functions ** //
 #define PRESS(keycode) register_code16(keycode)
@@ -190,31 +43,7 @@ void ALT(uint16_t keycode) {
   RELEASE(KC_LALT);
 }
 
-// ** TAP DANCE Definitions ** //
-typedef enum {
-    TD_NONE,
-    TD_UNKNOWN,
-    TD_SINGLE_TAP,
-    TD_DOUBLE_TAP,
-    TD_TRIPLE_TAP
-} td_state_t;
 
-typedef struct {
-    bool is_press_action;
-    td_state_t state;
-} td_tap_t;
-
-enum custom_tapdance_actions{
-    VIM_d,
-    VIM_y,
-};
-
-td_state_t cur_dance(qk_tap_dance_state_t *state);
-
-void d_finished(qk_tap_dance_state_t *state, void *user_data);
-void d_reset(qk_tap_dance_state_t *state, void *user_data); 
-void y_finished(qk_tap_dance_state_t *state, void *user_data);
-void y_reset(qk_tap_dance_state_t *state, void *user_data);
 
 // NOTE: NEEDS TO BE MOVED TO USERSPACE(?)
 // ** Functions for sending custom keycodes ** //
@@ -288,7 +117,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    *                                         | Space   |         |         |          |         |         | BckSpc  |
    *                                         `-----------------------------'          `-----------------------------'                                      */
   [_BASE] = LAYOUT_4key_2u_inner(
-      OFF_ESC,  KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_LBRC,             KC_RBRC,  KC_6,     KC_7,     KC_8,      KC_9,     KC_0,    KC_MINS, 
+      VIM_ESC,  KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_LBRC,             KC_RBRC,  KC_6,     KC_7,     KC_8,      KC_9,     KC_0,    KC_MINS, 
       KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_F4,               KC_EQL,   KC_Y,     KC_U,     KC_I,      KC_O,     KC_P,    KC_LEAD, 
       KC_GRV,   KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     FNT_PSCR,            FNT_BSLS, KC_H,     KC_J,     KC_K,      KC_L,     KC_SCLN, KC_QUOT,
       KC_LSFT,  KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     XXXXXXX,             XXXXXXX,  KC_N,     KC_M,     KC_COMM,   KC_DOT,   KC_SLSH, KC_RSFT, 
@@ -323,7 +152,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
    /* Keymap 2: VIM (Toggle) Layer
    * ,-----------------------------------------------------------.                              ,-----------------------------------------------------------.
-   * | OFF_ESC |         |         |         | VIM 4   |         |---------.          ,---------| VIM_6   |         |         |         | VIM 0   |         |
+   * | VIM_ESC |         |         |         | VIM 4   |         |---------.          ,---------| VIM_6   |         |         |         | VIM 0   |         |
    * |---------+---------+---------+---------+---------+---------|         |          |         |---------+---------+---------+---------+---------+---------|
    * | TRNS    |         | VIM W   | VIM E   | VIM R   |         |---------|          |---------|         | VIM U   | VIM I   | VIM O   | VIM P   | CAPSLK  |
    * |---------+---------+---------+---------+---------+---------|         |          |         |---------+---------+---------+---------+---------+---------|
@@ -338,7 +167,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    *                                         | TRNS    |         |         |          |         |         | TRNS    |
    *                                         `-----------------------------'          `-----------------------------'                                      */
   [_VIMTOGGLE] = LAYOUT_4key_2u_inner(
-      OFF_ESC,  XXXXXXX,  XXXXXXX,  XXXXXXX,  VIM_4,    XXXXXXX,  XXXXXXX,             XXXXXXX,  VIM_6,    XXXXXXX,  XXXXXXX,  XXXXXXX,  VIM_0,     XXXXXXX, 
+      VIM_ESC,  XXXXXXX,  XXXXXXX,  XXXXXXX,  VIM_4,    XXXXXXX,  XXXXXXX,             XXXXXXX,  VIM_6,    XXXXXXX,  XXXXXXX,  XXXXXXX,  VIM_0,     XXXXXXX, 
       _______,  XXXXXXX,  VIM_W,    VIM_E,    VIM_R,    XXXXXXX,  XXXXXXX,             XXXXXXX,  VIM_Y,    VIM_U,    VIM_I,    VIM_O,    VIM_P,     KC_CAPS, 
       XXXXXXX,  VIM_A,    VIM_S,    VIM_D,    VIM_F,    VIM_G,    KC_PSCR,             XXXXXXX,  VIM_H,    VIM_J,    VIM_K,    VIM_L,    MO(_NUM),  XXXXXXX,
       _______,  XXXXXXX,  VIM_X,    VIM_C,    VIM_V,    VIM_B,    _______,             _______,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  CTLF,      _______,
@@ -373,7 +202,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
    /* Keymap 4: VIM/Media (Momentary) layer 
    * ,-----------------------------------------------------------.                              ,-----------------------------------------------------------.
-   * | OFF_ESC |         |         |         | VIM 4   |         |---------.          ,---------| VIM 6   | Rewind  | Fastfwd |         | VIM 0   |         |
+   * | VIM_ESC |         |         |         | VIM 4   |         |---------.          ,---------| VIM 6   | Rewind  | Fastfwd |         | VIM 0   |         |
    * |---------+---------+---------+---------+---------+---------|         |          |         |---------+---------+---------+---------+---------+---------|
    * | TRNS    |         | VIM W   | VIM E   | VIM R   |         |---------|          |---------|TD(VIM_y)| VIM U   | VIM I   |         | VIM P   |         |
    * |---------+---------+---------+---------+---------+---------|         |          | Mute    |---------+---------+---------+---------+---------+---------|
@@ -388,7 +217,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    *                                         | TRNS    |         |         |          |         |         | TRNS    |
    *                                         `-----------------------------'          `-----------------------------'                                      */
 	[_VIM] = LAYOUT_4key_2u_inner(
-      OFF_ESC,  XXXXXXX,  XXXXXXX,  XXXXXXX,  VIM_4,    XXXXXXX,  XXXXXXX,             XXXXXXX,  VIM_6,    KC_MRWD,  KC_MFFD,  XXXXXXX,   VIM_0,     XXXXXXX, 
+      VIM_ESC,  XXXXXXX,  XXXXXXX,  XXXXXXX,  VIM_4,    XXXXXXX,  XXXXXXX,             XXXXXXX,  VIM_6,    KC_MRWD,  KC_MFFD,  XXXXXXX,   VIM_0,     XXXXXXX, 
       _______,  XXXXXXX,  VIM_W,    VIM_E,    VIM_R,    XXXXXXX,  XXXXXXX,             KC_MUTE,  TD(VIM_y),VIM_U,    VIM_I,    XXXXXXX,   VIM_P,     XXXXXXX, 
       XXXXXXX,  XXXXXXX,  XXXXXXX,  TD(VIM_d),VIM_F,    VIM_G,    KC_PSCR,             KC_MPLY,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RIGHT,  XXXXXXX,   XXXXXXX, 
       _______,  XXXXXXX,  VIM_X,    XXXXXXX,  VIM_V,    VIM_B,    _______,             _______,  KC_MPRV,  KC_VOLD,  KC_VOLU,  KC_MNXT,   CTLF,      _______, 
@@ -398,7 +227,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
    /* Keymap 5: SYMBOL Layer
    * ,-----------------------------------------------------------.                              ,-----------------------------------------------------------.
-   * | OFF_ESC | !       | @       | #       | $       | %       |---------.          ,---------|         |         |         |         |         |         |
+   * | VIM_ESC | !       | @       | #       | $       | %       |---------.          ,---------|         |         |         |         |         |         |
    * |---------+---------+---------+---------+---------+---------| [       |          |         |---------+---------+---------+---------+---------+---------|
    * |         | ^       | &       | *       | -       | _       |---------|          |---------|         |         |         |         |         |         |
    * |---------+---------+---------+---------+---------+---------| '       |          |         |---------+---------+---------+---------+---------+---------|
@@ -413,7 +242,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    *                                         |         |         |         |          |         |         |         |
    *                                         `-----------------------------'          `-----------------------------'                                      */
   [_SYM] = LAYOUT_4key_2u_inner(
-      OFF_ESC,  KC_EXLM,  KC_AT,    KC_HASH,  KC_DLR,   KC_PERC,  KC_LBRC,             XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, 
+      VIM_ESC,  KC_EXLM,  KC_AT,    KC_HASH,  KC_DLR,   KC_PERC,  KC_LBRC,             XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, 
       XXXXXXX,  KC_CIRC,  KC_AMPR,  KC_ASTR,  KC_MINS,  KC_UNDS,  KC_QUOT,             XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, 
       KC_TILD,  KC_DQUO,  KC_LT,    KC_LCBR,  KC_LPRN,  KC_DQUO,  KC_COLN,             XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, 
       XXXXXXX,  KC_PDOT,  KC_PLUS,  KC_EQL,   KC_PSLS,  KC_BSLS,  XXXXXXX,             XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, 
@@ -423,7 +252,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
    /* Keymap 6: ADJUST Layer
    * ,-----------------------------------------------------------.                              ,-----------------------------------------------------------.
-   * | OFF_ESC |         |         |         |         |         |---------.          ,---------|         |         |         |         |         |         |
+   * | VIM_ESC |         |         |         |         |         |---------.          ,---------|         |         |         |         |         |         |
    * |---------+---------+---------+---------+---------+---------|         |          | EEP_RST |---------+---------+---------+---------+---------+---------|
    * |         |         |         |         |         |         |---------|          |---------|         |         |         |         |         |         |
    * |---------+---------+---------+---------+---------+---------|         |          |         |---------+---------+---------+---------+---------+---------|
@@ -438,7 +267,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    *                                         |         |         |         |          |         |         |         |
    *                                         `-----------------------------'          `-----------------------------'                                      */
   [_ADJUST] = LAYOUT_4key_2u_inner(
-      OFF_ESC,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,             EEP_RST,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, 
+      VIM_ESC,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,             EEP_RST,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, 
       XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,             XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, 
       XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,             XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, 
       XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,             XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, 
@@ -496,7 +325,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       return true; 
     
-    case OFF_ESC:
+    case VIM_ESC:
       if (PRESSED) {
         switch(VIM_QUEUE){
           case VIM_R: VIM_LEFT(); break;
