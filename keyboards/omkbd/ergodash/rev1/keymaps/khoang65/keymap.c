@@ -1,62 +1,10 @@
 ﻿#include QMK_KEYBOARD_H
 #include "khoang65.h"
-#include "vim_dows.h"
 #include "tap_dance.h"
 
 bool isLeader = false;
 bool onMac = false;
-bool isShiftPressed = false; // flags to determine if the key is currently held instead of registered 
-bool isCtrlPressed = false;  //   used so modifiers can be held to send repeated modifier vim macros 
-uint8_t mod_state;
 
-
-
-
-
-// NOTE: NEEDS TO BE MOVED TO USERSPACE(?)
-// ** Functions for sending custom keycodes ** //
-/* 
- * QMK functions can't register custom keycodes, but we can setup a keyrecord_t and call process_record_kb() directly.
- * Unknowns:
- *  Do we need to set the column and row for each keycode?
- *  Could reusing the same keyrecord_t struct cause problems with keycodes clobbering each other?
-*/
-// Dummy keyrecord_t for hooking process_record_kb() with custom keycodes
-static keyrecord_t dummy_record = {
-    .event = {
-        .key = {
-            .col = 0,
-            .row = 0,
-            },
-        .pressed = false,
-        .time = 0,
-    },
-    .tap = {0},
-};
-
-void setup_dummy_record(uint8_t col, uint8_t row, bool pressed) {
-    dummy_record.event.key.col = col;
-    dummy_record.event.key.row = row;
-    dummy_record.event.pressed = pressed;
-    dummy_record.event.time = timer_read();
-}
-
-void register_custom_keycode(uint16_t keycode, uint8_t col, uint8_t row) {
-    setup_dummy_record(col, row, true);
-    process_record_kb(keycode, &dummy_record);
-}
-
-void unregister_custom_keycode(uint16_t keycode, uint8_t col, uint8_t row) {
-    setup_dummy_record(col, row, false);
-    process_record_kb(keycode, &dummy_record);
-}
-
-void tap_custom_keycode(uint16_t keycode, uint8_t col, uint8_t row) {
-    register_custom_keycode(keycode, col, row);
-    wait_ms(10);
-    unregister_custom_keycode(keycode, col, row);
-};
-/* End functions for sending custom keycodes */
 
 /****
  *.##....##.########.##....##.##.....##....###....########.
@@ -244,13 +192,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 /****
- *..######..##.....##..######..########..#######..##.....##....##....##.########.##....##..######...#######..########..########..######.
- *.##....##.##.....##.##....##....##....##.....##.###...###....##...##..##........##..##..##....##.##.....##.##.....##.##.......##....##
- *.##.......##.....##.##..........##....##.....##.####.####....##..##...##.........####...##.......##.....##.##.....##.##.......##......
- *.##.......##.....##..######.....##....##.....##.##.###.##....#####....######......##....##.......##.....##.##.....##.######....######.
- *.##.......##.....##.......##....##....##.....##.##.....##....##..##...##..........##....##.......##.....##.##.....##.##.............##
- *.##....##.##.....##.##....##....##....##.....##.##.....##....##...##..##..........##....##....##.##.....##.##.....##.##.......##....##
- *..######...#######...######.....##.....#######..##.....##....##....##.########....##.....######...#######..########..########..######.
+ *.##....##.########.##....##..######...#######..########..########..######.
+ *.##...##..##........##..##..##....##.##.....##.##.....##.##.......##....##
+ *.##..##...##.........####...##.......##.....##.##.....##.##.......##......
+ *.#####....######......##....##.......##.....##.##.....##.######....######.
+ *.##..##...##..........##....##.......##.....##.##.....##.##.............##
+ *.##...##..##..........##....##....##.##.....##.##.....##.##.......##....##
+ *.##....##.########....##.....######...#######..########..########..######.
  */
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
@@ -929,95 +877,4 @@ void leader_end(void) {
     isLeader = false;
 }
 #endif // !LEADER_ENABLE
-
-
-/****
- *.########....###....########.....########.....###....##....##..######..########
- *....##......##.##...##.....##....##.....##...##.##...###...##.##....##.##......
- *....##.....##...##..##.....##....##.....##..##...##..####..##.##.......##......
- *....##....##.....##.########.....##.....##.##.....##.##.##.##.##.......######..
- *....##....#########.##...........##.....##.#########.##..####.##.......##......
- *....##....##.....##.##...........##.....##.##.....##.##...###.##....##.##......
- *....##....##.....##.##...........########..##.....##.##....##..######..########
- */
-td_state_t cur_dance(qk_tap_dance_state_t *state) {
-  if (state->count == 1) return TD_SINGLE_TAP;
-  else if (state->count == 2) return TD_DOUBLE_TAP;
-  else return TD_UNKNOWN;
-}
-
-td_tap_t dtap_state = {
-  .is_press_action = true,
-  .state = TD_NONE
-};
-
-void d_finished(qk_tap_dance_state_t *state, void *user_data) {
-  dtap_state.state = cur_dance(state);
-  switch (dtap_state.state) {
-    case TD_SINGLE_TAP:
-      if (isCtrlPressed) {
-        del_mods(MOD_MASK_CTRL);
-        VIM_SCROLL_HALF_DOWN();
-        set_mods(mod_state);
-      } else {
-        register_code16(CTLX);
-      }
-      break;
-    case TD_DOUBLE_TAP:
-      register_custom_keycode(TD_dd, 12, 5);
-      break;
-    default: break;
-  }
-}
-
-void d_reset(qk_tap_dance_state_t *state, void *user_data) {
-  switch (dtap_state.state) {
-    case TD_SINGLE_TAP:
-      if (!isCtrlPressed) {
-        unregister_code16(CTLX); 
-      }
-      break;
-    case TD_DOUBLE_TAP:
-      unregister_custom_keycode(TD_dd, 12, 5);
-      break;
-    default: break;
-  }
-  dtap_state.state = TD_NONE;
-}
-
-td_tap_t ytap_state = {
-  .is_press_action = true,
-  .state = TD_NONE
-};
-
-void y_finished(qk_tap_dance_state_t *state, void *user_data) {
-  dtap_state.state = cur_dance(state);
-  switch (dtap_state.state) {
-    case TD_SINGLE_TAP:
-      register_code16(CTLC);
-      break;
-    case TD_DOUBLE_TAP:
-      register_custom_keycode(TD_yy, 12 ,5);
-      break;
-    default: break;
-  }
-}
-
-void y_reset(qk_tap_dance_state_t *state, void *user_data) {
-  switch (dtap_state.state) {
-    case TD_SINGLE_TAP:
-      unregister_code16(CTLC); 
-      break;
-    case TD_DOUBLE_TAP: 
-      unregister_custom_keycode(TD_yy, 12, 5);
-      break;
-    default: break;
-  }
-  dtap_state.state = TD_NONE;
-}
-
-qk_tap_dance_action_t tap_dance_actions[] = {
-    [VIM_d] = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, d_finished, d_reset, 175),
-    [VIM_y] = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, y_finished, y_reset, 175),
-};
 

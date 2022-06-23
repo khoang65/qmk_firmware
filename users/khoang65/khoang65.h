@@ -2,6 +2,10 @@
 
 #include QMK_KEYBOARD_H
 
+bool isShiftPressed = false; // flags to determine if the key is currently held instead of registered 
+bool isCtrlPressed = false;  //   used so modifiers can be held to send repeated modifier vim macros 
+uint8_t mod_state;
+
 enum layer_names {
     _BASE = 0,
     _FN,   // = 1

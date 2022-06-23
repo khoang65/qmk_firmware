@@ -15,6 +15,9 @@
  */
 
 
+// ** QMK VIM Implementation for Windows ** //
+//  Based off ergodox_ez/keymaps/vim/
+//  added more functions and modified to be more robust an work with Windows
 #pragma once
 
 #include QMK_KEYBOARD_H
@@ -22,15 +25,18 @@
 #include "quantum.h"
 #include "quantum_keycodes.h"
 
+// ** VIM Definitions ** //
 enum custom_keycodes {
   PLACEHOLDER = SAFE_RANGE,
   VIM_ESC,
   LT_TO_VIM,
+#ifdef TAP_DANCE_ENABLE
   TD_yy,
   TD_dd,
+#endif // !TAP_DANCE_ENABLE
   VIM_0,
-  VIM_4, // $ 
-  VIM_6, // ^  
+  VIM_4, // `$`
+  VIM_6, // `^`  
   VIM_A,
   VIM_B,
   VIM_C,
@@ -58,7 +64,6 @@ enum custom_keycodes {
   VIM_YI, // = 32
 };
 
-// **  VIM Definitions ** //
 uint16_t VIM_QUEUE = KC_NO;
 uint16_t LT_TO_VIM_TIMER;
 
@@ -131,7 +136,6 @@ void VIM_YANK_UP(void);
 void VIM_YANK_WHOLE_LINE(void);
 void VIM_YANK_WORD(void);
 
-
 /**
  * Sets the `VIM_QUEUE` variable to the incoming keycode.
  * Pass `KC_NO` to cancel the operation.
@@ -153,7 +157,6 @@ void VIM_LEADER(uint16_t keycode) {
     case KC_NO: print("❎"); break;
   }
 }
-
 
 /**
  * Keycode Helper Functions
