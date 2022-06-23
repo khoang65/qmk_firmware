@@ -2,11 +2,13 @@
 
 bool isLeader = false;
 bool onMac = false;
+bool isShiftPressed = false; // flags to determine if the key is currently held instead of registered 
+bool isCtrlPressed = false;  //   used so modifiers can be held to send repeated modifier vim macros 
 
 enum layer_names {
     _BASE = 0,
     _FN,   // = 1
-    _VIMT, // = 2
+    _VIMTOGGLE, // = 2
     _NUM,  // = 3
     _VIM,  // = 4
     _SYM,  // = 5
@@ -18,7 +20,6 @@ enum layer_names {
 #define CS_F14    C_S_T(KC_F14)
 #define FNT_PSCR  LT(_FN,KC_PSCR)
 #define FNT_BSLS  LT(_FN,KC_BSLS)
-#define NUMT_SCLN LT(_NUM, KC_SCLN)
 
 #define CTLC    LCTL(KC_C)
 #define CTLX    LCTL(KC_X)
@@ -158,6 +159,7 @@ void VIM_LEADER(uint16_t keycode) {
 // ** Keycode Helper Functions ** //
 #define PRESS(keycode) register_code16(keycode)
 #define RELEASE(keycode) unregister_code16(keycode)
+uint8_t mod_state;
 
 void TAP(uint16_t keycode) {
   PRESS(keycode);
@@ -171,9 +173,9 @@ void CMD(uint16_t keycode) {
 }
 
 void CTRL(uint16_t keycode) {
-  PRESS(KC_LCTRL);
+  PRESS(KC_LCTL);
     TAP(keycode);
-  RELEASE(KC_LCTRL);
+  RELEASE(KC_LCTL);
 }
 
 void SHIFT(uint16_t keycode) {
@@ -188,14 +190,6 @@ void ALT(uint16_t keycode) {
   RELEASE(KC_LALT);
 }
 
-void RELEASE_MODS(void) {
-  RELEASE(KC_LSHIFT);
-  RELEASE(KC_RSHIFT);
-  RELEASE(KC_LCTRL);
-  RELEASE(KC_RCTRL);
-  RELEASE(KC_LALT);
-  RELEASE(KC_RALT);
-}
 // ** TAP DANCE Definitions ** //
 typedef enum {
     TD_NONE,
@@ -243,7 +237,6 @@ static keyrecord_t dummy_record = {
     .tap = {0},
 };
 
-// Setup dummy_record for process_record_kb()
 void setup_dummy_record(uint8_t col, uint8_t row, bool pressed) {
     dummy_record.event.key.col = col;
     dummy_record.event.key.row = row;
@@ -251,19 +244,16 @@ void setup_dummy_record(uint8_t col, uint8_t row, bool pressed) {
     dummy_record.event.time = timer_read();
 }
 
-// Register a custom keycode with process_record_kb()
 void register_custom_keycode(uint16_t keycode, uint8_t col, uint8_t row) {
     setup_dummy_record(col, row, true);
     process_record_kb(keycode, &dummy_record);
 }
 
-// Unregister a custom keycode with process_record_kb()
 void unregister_custom_keycode(uint16_t keycode, uint8_t col, uint8_t row) {
     setup_dummy_record(col, row, false);
     process_record_kb(keycode, &dummy_record);
 }
 
-// Tap a custom keycode with process_record_kb()
 void tap_custom_keycode(uint16_t keycode, uint8_t col, uint8_t row) {
     register_custom_keycode(keycode, col, row);
     wait_ms(10);
@@ -337,7 +327,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    * |---------+---------+---------+---------+---------+---------|         |          |         |---------+---------+---------+---------+---------+---------|
    * | TRNS    |         | VIM W   | VIM E   | VIM R   |         |---------|          |---------|         | VIM U   | VIM I   | VIM O   | VIM P   | CAPSLK  |
    * |---------+---------+---------+---------+---------+---------|         |          |         |---------+---------+---------+---------+---------+---------|
-   * |         | VIM A   | VIM S   | VIM D   |         | VIM G   |---------|          |---------| VIM H   | VIM J   | VIM K   | VIM L   | MO(NUM) |         |
+   * |         | VIM A   | VIM S   | VIM D   | VIM F   | VIM G   |---------|          |---------| VIM H   | VIM J   | VIM K   | VIM L   | MO(NUM) |         |
    * |---------+---------+---------+---------+---------+---------|         |          |         |---------+---------+---------+---------+---------|---------|
    * | TRNS    |         | VIM X   | VIM C   | VIM V   | VIM B   |---------'          `---------|         |         |         |         | Ctrl+F  | TRNS    |
    * |---------+---------+---------+-----------------------------'                              `-----------------------------+---------+---------+---------|
@@ -347,12 +337,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    *                                         ,---------|         | TRNS    |          | TRNS    |         +---------.
    *                                         | TRNS    |         |         |          |         |         | TRNS    |
    *                                         `-----------------------------'          `-----------------------------'                                      */
-  [_VIMT] = LAYOUT_4key_2u_inner(
+  [_VIMTOGGLE] = LAYOUT_4key_2u_inner(
       OFF_ESC,  XXXXXXX,  XXXXXXX,  XXXXXXX,  VIM_4,    XXXXXXX,  XXXXXXX,             XXXXXXX,  VIM_6,    XXXXXXX,  XXXXXXX,  XXXXXXX,  VIM_0,     XXXXXXX, 
       _______,  XXXXXXX,  VIM_W,    VIM_E,    VIM_R,    XXXXXXX,  XXXXXXX,             XXXXXXX,  VIM_Y,    VIM_U,    VIM_I,    VIM_O,    VIM_P,     KC_CAPS, 
-      XXXXXXX,  VIM_A,    VIM_S,    VIM_D,    XXXXXXX,  VIM_G,    KC_PSCR,             XXXXXXX,  VIM_H,    VIM_J,    VIM_K,    VIM_L,    MO(_NUM),  XXXXXXX,
+      XXXXXXX,  VIM_A,    VIM_S,    VIM_D,    VIM_F,    VIM_G,    KC_PSCR,             XXXXXXX,  VIM_H,    VIM_J,    VIM_K,    VIM_L,    MO(_NUM),  XXXXXXX,
       _______,  XXXXXXX,  VIM_X,    VIM_C,    VIM_V,    VIM_B,    _______,             _______,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  CTLF,      _______,
-      _______,  _______,  _______,  _______,  _______,  _______,  _______,             XXXXXXX,  _______,  _______,  XXXXXXX,  _______,  _______,   TO(_BASE)
+      _______,  _______,  _______,  _______,  _______,  _______,  _______,             MO(_VIM), _______,  _______,  XXXXXXX,  _______,  _______,   TO(_BASE)
       ),
      
      
@@ -387,7 +377,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    * |---------+---------+---------+---------+---------+---------|         |          |         |---------+---------+---------+---------+---------+---------|
    * | TRNS    |         | VIM W   | VIM E   | VIM R   |         |---------|          |---------|TD(VIM_y)| VIM U   | VIM I   |         | VIM P   |         |
    * |---------+---------+---------+---------+---------+---------|         |          | Mute    |---------+---------+---------+---------+---------+---------|
-   * |         |         |         |TD(VIM_d)|         | VIM G   |---------|          |---------| Left    | Down    | Up      | Right   |         |         |
+   * |         |         |         |TD(VIM_d)| VIM F   | VIM G   |---------|          |---------| Left    | Down    | Up      | Right   |         |         |
    * |---------+---------+---------+---------+---------+---------| PrtScr  |          | Play    |---------+---------+---------+---------+---------|---------|
    * | TRNS    |         | VIM X   |         | VIM V   | VIM B   |---------'          `---------| Prev Tra| Vol -   | Vol +   | Next Tra| Ctrl+F  | TRNS    |
    * |---------+---------+---------+-----------------------------'                              `-----------------------------+---------+---------+---------|
@@ -400,7 +390,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[_VIM] = LAYOUT_4key_2u_inner(
       OFF_ESC,  XXXXXXX,  XXXXXXX,  XXXXXXX,  VIM_4,    XXXXXXX,  XXXXXXX,             XXXXXXX,  VIM_6,    KC_MRWD,  KC_MFFD,  XXXXXXX,   VIM_0,     XXXXXXX, 
       _______,  XXXXXXX,  VIM_W,    VIM_E,    VIM_R,    XXXXXXX,  XXXXXXX,             KC_MUTE,  TD(VIM_y),VIM_U,    VIM_I,    XXXXXXX,   VIM_P,     XXXXXXX, 
-      XXXXXXX,  XXXXXXX,  XXXXXXX,  TD(VIM_d),XXXXXXX,  VIM_G,    KC_PSCR,             KC_MPLY,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RIGHT,  XXXXXXX,   XXXXXXX, 
+      XXXXXXX,  XXXXXXX,  XXXXXXX,  TD(VIM_d),VIM_F,    VIM_G,    KC_PSCR,             KC_MPLY,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RIGHT,  XXXXXXX,   XXXXXXX, 
       _______,  XXXXXXX,  VIM_X,    XXXXXXX,  VIM_V,    VIM_B,    _______,             _______,  KC_MPRV,  KC_VOLD,  KC_VOLU,  KC_MNXT,   CTLF,      _______, 
       _______,  _______,  _______,  _______,  _______,  _______,  _______,             _______,  _______,  _______,  XXXXXXX,  _______,   _______,   TO(_BASE)
       ),
@@ -467,14 +457,47 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
-  bool pressed = record->event.pressed;
-  bool SHIFTED = (keyboard_report->mods & MOD_BIT(KC_LSFT)) | (keyboard_report->mods & MOD_BIT(KC_RSFT));
-  bool CTRLED = (keyboard_report->mods & MOD_BIT(KC_LCTL)) | (keyboard_report->mods & MOD_BIT(KC_RCTL));
+  bool PRESSED = record->event.pressed;
+  mod_state = get_mods();
+  //bool SHIFTED = (keyboard_report->mods & MOD_BIT(KC_LSFT)) | (keyboard_report->mods & MOD_BIT(KC_RSFT));
+  //bool CTRLED = (keyboard_report->mods & MOD_BIT(KC_LCTL)) | (keyboard_report->mods & MOD_BIT(KC_RCTL));
 
   switch (keycode) {
-
+    
+    case KC_LSHIFT:
+      if (PRESSED) {
+        isShiftPressed = true;
+      } else {
+        isShiftPressed = false;
+      }
+      return true; // Let QMK process the keycode as usual
+    
+    case KC_RSHIFT:
+      if (PRESSED) {
+        isShiftPressed = true;
+      } else {
+        isShiftPressed = false;
+      }
+      return true;
+      
+    case KC_LCTL:
+      if (PRESSED) {
+        isCtrlPressed = true;
+      } else {
+        isCtrlPressed = false;
+      }
+      return true;
+    
+    case KC_RCTL:
+      if (PRESSED) {
+        isCtrlPressed = true;
+      } else {
+        isCtrlPressed = false;
+      }
+      return true; 
+    
     case OFF_ESC:
-      if (pressed) {
+      if (PRESSED) {
         switch(VIM_QUEUE){
           case VIM_R: VIM_LEFT(); break;
           default: 
@@ -482,34 +505,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             caps_word_off();
             layer_move(_BASE);
             if(IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
-              TAP(KC_CAPS); // Turn off Capslock
+              TAP(KC_CAPS); // Turns off CAPS
             }
             VIM_LEADER(KC_NO);
           break;
         }
-      } else {
-        // Do something when released; typically unregister code to keep the KC held while pressed
+      } else { // Do something when key released; typically unregister code
         RELEASE(KC_ESC);
       }
-    return false;
+      return false;
 
     case LT_TO_VIM:                                  
-    if(pressed){
-      LT_TO_VIM_TIMER = timer_read();
-      layer_on(_VIM); // Needs transparent layer to see keypress release()
-    } else {
-      layer_off(_VIM);
-      if ((timer_elapsed(LT_TO_VIM_TIMER) < TAPPING_TERM) && layer_state_is(_BASE)) {  
-        layer_move(_VIMT); // same as TO()
+      if(PRESSED){
+        LT_TO_VIM_TIMER = timer_read();
+        layer_on(_VIM); // Needs transparent layer to see keypress release()?
+      } else {
+        layer_off(_VIM);
+        if ((timer_elapsed(LT_TO_VIM_TIMER) < TAPPING_TERM) && layer_state_is(_BASE)) {  
+          layer_move(_VIMTOGGLE); // same as TO(_VIMTOGGLE)
+        }
       }
-    }
-    return true; 
+      return true; 
 
     case TD_dd:
-      if (CTRLED && pressed) {
-        RELEASE(KC_LCTL); RELEASE(KC_RCTL);
-        VIM_SCROLL_HALF_DOWN();
-      } else if (pressed) {
+      if(PRESSED) {
         TAP(KC_HOME);
         TAP(KC_HOME);
         SHIFT(KC_END);
@@ -519,79 +538,102 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
 
     case TD_yy:
-      if (pressed) {
+      if (PRESSED) {
         TAP(KC_HOME);
         TAP(KC_HOME);
         PRESS(KC_LSFT);
-        TAP(KC_END);
+          TAP(KC_END);
         RELEASE(KC_LSFT);
         CTRL(KC_C);
-        PRESS(KC_RIGHT);
-      } else {
-        RELEASE(KC_RIGHT);
+        TAP(KC_RIGHT);
       }
       return false;
 
-    /* VIM */
     case VIM_0:
-      if (pressed) {
+      if (PRESSED) {
         VIM_START_OF_LINE();
       }
       return false;
     
     case VIM_4:
-      if (SHIFTED && pressed) {
-        RELEASE(KC_LSHIFT); RELEASE(KC_RSHIFT);
+      if (isShiftPressed && PRESSED) {
+        del_mods(MOD_MASK_SHIFT);
         VIM_END_OF_LINE();
+        set_mods(mod_state);
       }
       return false;
     
     case VIM_6:
-      if (SHIFTED && pressed) {
-        RELEASE(KC_LSHIFT);
+      if (isShiftPressed && PRESSED) {
+        del_mods(MOD_MASK_SHIFT);
         VIM_BEGINNING_OF_LINE();
+        set_mods(mod_state);
       }
       return false;
     
     case VIM_A:
-      if (pressed) { SHIFTED ? RELEASE(KC_LSHIFT), VIM_APPEND_LINE() : VIM_APPEND(); }
+      if (isShiftPressed && PRESSED) { 
+        del_mods(MOD_MASK_SHIFT);
+        VIM_APPEND_LINE();
+        set_mods(mod_state);      
+      } else if (PRESSED) {
+        VIM_APPEND();
+      }
       return false;
 
     case VIM_B:
-      if (pressed) {
+      if (PRESSED) {
         switch(VIM_QUEUE) {
-          case KC_NO: CTRLED ? RELEASE(KC_LCTL), RELEASE(KC_RCTL), VIM_SCROLL_FULL_BACK : PRESS(KC_LCTRL); PRESS(KC_LEFT); break;
+          case KC_NO: 
+            if(isCtrlPressed) {
+              del_mods(MOD_MASK_CTRL);
+              PRESS(KC_PGUP);
+              set_mods(mod_state);
+            } else {
+              PRESS(KC_LCTL); 
+              PRESS(KC_LEFT);
+            }
+            break;
           case VIM_C: VIM_CHANGE_BACK(); break;
           case VIM_D: VIM_DELETE_BACK(); break;
           case VIM_V: VIM_VISUAL_BACK(); break;
         }
       } else {
+        RELEASE(KC_PGUP);
         RELEASE(KC_LEFT);
         RELEASE(KC_LCTL);
       }
       return false;
 
     case VIM_C:
-      if (pressed) {
+      if (PRESSED) {
         switch(VIM_QUEUE) {
-          case KC_NO: SHIFTED ? RELEASE(KC_LSHIFT), RELEASE(KC_RSHIFT), VIM_CHANGE_TO_EOL() : VIM_LEADER(VIM_C); break;
+          case KC_NO: 
+            if(isShiftPressed) {
+              del_mods(MOD_MASK_SHIFT);
+              VIM_CHANGE_TO_EOL();
+              set_mods(mod_state);
+            } else {
+              VIM_LEADER(VIM_C);
+            }
+            break;
           case VIM_C: VIM_CHANGE_WHOLE_LINE(); break;
         }
       }
       return false;
 
     case VIM_D:
-      if (pressed) {
+      if (PRESSED) {
         switch(VIM_QUEUE) {
           case KC_NO: 
-            if (SHIFTED) {
-              RELEASE(KC_LSHIFT); 
-              RELEASE(KC_RSHIFT);
+            if (isShiftPressed) {
+              del_mods(MOD_MASK_SHIFT);
               VIM_DELETE_TO_EOL();
-            } else if (CTRLED) {
-              RELEASE(KC_LCTL);
-              RELEASE(KC_RCTL);
+              set_mods(mod_state);
+            } else if (isCtrlPressed) {
+              del_mods(MOD_MASK_CTRL);
               VIM_SCROLL_HALF_DOWN();
+              set_mods(mod_state);
             } else {
               VIM_LEADER(VIM_D);
             }
@@ -602,9 +644,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
 
     case VIM_E:
-      if (pressed) {
+      if (PRESSED) {
         switch (VIM_QUEUE) {
-          case KC_NO: PRESS(KC_LCTRL); PRESS(KC_RIGHT); break;
+          case KC_NO: PRESS(KC_LCTL); PRESS(KC_RIGHT); break;
           case VIM_C: VIM_CHANGE_END(); break;
           case VIM_D: VIM_DELETE_END(); break;
           case VIM_V: VIM_VISUAL_END(); break;
@@ -617,24 +659,34 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
     
     case VIM_F:
-      if (CTRLED && pressed) {
-        RELEASE(KC_LCTL);
-        RELEASE(KC_RCTL);
-        VIM_SCROLL_FULL_FORWARD();
+      if (isCtrlPressed && PRESSED) {
+        del_mods(MOD_MASK_CTRL);
+        PRESS(KC_PGDOWN);
+        set_mods(mod_state);
+      } else {
+        RELEASE(KC_PGDOWN);
       }
       return false;
     
     case VIM_G:
-      if (pressed) {
+      if (PRESSED) {
         switch (VIM_QUEUE) {
-          case KC_NO: SHIFTED ? RELEASE(KC_LSHIFT), RELEASE(KC_RSHIFT), VIM_LAST_LINE() : VIM_LEADER(VIM_G); break;
+          case KC_NO: 
+            if (isShiftPressed) {
+              del_mods(MOD_MASK_SHIFT);
+              VIM_LAST_LINE();
+              set_mods(mod_state);
+            } else {
+              VIM_LEADER(VIM_G);
+            }
+            break;
           case VIM_G: VIM_FIRST_LINE(); break;
         }
       }
       return false;
     
     case VIM_H:
-      if (pressed) {
+      if (PRESSED) {
         switch (VIM_QUEUE) {
           case KC_NO: PRESS(KC_LEFT); break;
           case VIM_C: VIM_CHANGE_LEFT(); break;
@@ -648,7 +700,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
 
     case VIM_I:
-      if (pressed) {
+      if (PRESSED) {
         switch (VIM_QUEUE) {
           case KC_NO: layer_move(_BASE); break;
           case VIM_C: VIM_LEADER(VIM_CI); break;
@@ -660,9 +712,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
 
     case VIM_J:
-      if (pressed) {
+      if (PRESSED) {
         switch (VIM_QUEUE) {
-          case KC_NO: SHIFTED ? RELEASE(KC_LSHIFT), VIM_JOIN() : PRESS(KC_DOWN); break;
+          case KC_NO: 
+            if (isShiftPressed) {
+              del_mods(MOD_MASK_SHIFT);
+              VIM_JOIN();
+              set_mods(mod_state);
+            } else {
+              PRESS(KC_DOWN);
+            }
+            break;
           case VIM_C: VIM_CHANGE_DOWN(); break;
           case VIM_D: VIM_DELETE_DOWN(); break;
           case VIM_V: VIM_VISUAL_DOWN(); break;
@@ -674,7 +734,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
 
     case VIM_K:
-      if (pressed) {
+      if (PRESSED) {
         switch (VIM_QUEUE) {
           case KC_NO: PRESS(KC_UP); break;
           case VIM_C: VIM_CHANGE_UP(); break;
@@ -688,7 +748,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
 
     case VIM_L:
-      if (pressed) {
+      if (PRESSED) {
         switch (VIM_QUEUE) {
           case KC_NO: PRESS(KC_RIGHT); break;
           case VIM_C: VIM_CHANGE_RIGHT(); break;
@@ -702,31 +762,66 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
 
     case VIM_O:
-      if (pressed) { SHIFTED ? RELEASE(KC_LSHIFT), VIM_OPEN_ABOVE() : VIM_OPEN(); }
+      if (PRESSED) { 
+        if (isShiftPressed) {
+          del_mods(MOD_MASK_SHIFT); 
+          VIM_OPEN_ABOVE(); 
+          set_mods(mod_state);
+        } else {
+          VIM_OPEN(); 
+        }
+      }
       return false;
 
     case VIM_P:
-      if (pressed) { SHIFTED ? RELEASE(KC_LSHIFT), VIM_PUT_BEFORE() : VIM_PUT_AFTER(); }
+      if (PRESSED) { 
+        if (isShiftPressed) {
+          del_mods(MOD_MASK_SHIFT); 
+          VIM_PUT_BEFORE(); 
+          set_mods(mod_state);
+        } else {
+          VIM_PUT_AFTER();
+        }
+      }
       return false;
     
     case VIM_R:
-      if (pressed) { VIM_REPLACE(); VIM_LEADER(VIM_R);}
+      if (PRESSED) { 
+        VIM_REPLACE(); 
+        VIM_LEADER(VIM_R);
+      }
       return false;
 
     case VIM_S:
-      if (pressed) { SHIFTED ? RELEASE(KC_LSHIFT), RELEASE(KC_RSHIFT), VIM_CHANGE_WHOLE_LINE() : VIM_SUBSTITUTE(); }
+      if (PRESSED) { 
+        if (isShiftPressed) {
+          del_mods(MOD_MASK_SHIFT); 
+          VIM_CHANGE_WHOLE_LINE();
+          set_mods(mod_state);
+        } else {
+          VIM_SUBSTITUTE();
+        }
+      }
       return false;
 
     case VIM_U:
-      if (pressed) { CTRLED ? RELEASE(KC_LCTL), RELEASE(KC_RCTL), VIM_SCROLL_HALF_UP() : VIM_UNDO(); }
+      if (PRESSED) { 
+        if (isCtrlPressed) {
+          del_mods(MOD_MASK_CTRL); 
+          VIM_SCROLL_HALF_UP(); 
+          set_mods(mod_state);
+        } else {
+          VIM_UNDO();
+        }
+      }
       return false;
 
     case VIM_V:
-      if (pressed) { VIM_LEADER(VIM_V); }
+      if (PRESSED) { VIM_LEADER(VIM_V); }
       return false;
 
     case VIM_W:
-      if (pressed) {
+      if (PRESSED) {
         switch (VIM_QUEUE) {
           case KC_NO: VIM_WORD(); break;
           case VIM_C: VIM_CHANGE_WORD(); break;
@@ -742,23 +837,32 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
 
     case VIM_X:
-      if (pressed) { VIM_CUT(); }
+      if (PRESSED) { VIM_CUT(); }
       return false;
 
     case VIM_Y:
-      if (pressed) { 
+      if (PRESSED) { 
         switch(VIM_QUEUE) {
-          case KC_NO: SHIFTED ? RELEASE(KC_LSHIFT), VIM_YANK_TO_EOL() : VIM_LEADER(VIM_Y); break;
+          case KC_NO:
+            if (isShiftPressed) {
+              del_mods(MOD_MASK_SHIFT);
+              VIM_YANK_TO_EOL();
+              set_mods(mod_state);
+            } else {
+              VIM_LEADER(VIM_Y);
+            }
+            break;
           case VIM_Y: VIM_YANK_WHOLE_LINE(); break;
         }
       }
       return false;
 
     default:
-      if (pressed) { // if non VIM Keycode sent, clear VIM Leader queue
+      if (PRESSED) { 
+        // if non VIM Keycode sent, clear VIM Leader queue
         VIM_LEADER(KC_NO);
       }
-    return true;
+      return true;
   }
 } 
 
@@ -775,9 +879,6 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 }
 bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
-    case NUMT_SCLN:
-      // Immediately select the hold action when another key is tapped
-      return true;
     case CS_F14:
       return true;
     case FNT_PSCR:
@@ -805,6 +906,7 @@ void numlock_on(void) {
       unregister_code(KC_NUMLOCK);
   }
 }
+
 void keyboard_post_init_user() {
   numlock_on();
   #ifdef RGBLIGHT_ENABLE
@@ -1040,7 +1142,7 @@ void leader_end(void) {
  *...##.##....##..##.....##....##.......##.....##.##...###.##....##....##.....##..##.....##.##...###.##....##
  *....###....####.##.....##....##........#######..##....##..######.....##....####..#######..##....##..######.
  */
-// NOTE: Based off ergodox_ez/keymaps/vim/ and modified to work with Windows
+// NOTE: Based off ergodox_ez/keymaps/vim/ and modified to be more robust and work with Windows
 /***
  *       ####  #    # ######     ####  #    #  ####  ##### 
  *      #    # ##   # #         #      #    # #    #   #   
@@ -1213,11 +1315,11 @@ void VIM_UP(void) {
 void VIM_WORD(void) {
   print("\e[31mw\e[0m");
   VIM_LEADER(KC_NO);
-  PRESS(KC_LCTRL);
+  PRESS(KC_LCTL);
     TAP(KC_RIGHT);
     TAP(KC_RIGHT);
     TAP(KC_LEFT);
-  RELEASE(KC_LCTRL);
+  RELEASE(KC_LCTL);
 }
 
 /**
@@ -1941,7 +2043,13 @@ void d_finished(qk_tap_dance_state_t *state, void *user_data) {
   dtap_state.state = cur_dance(state);
   switch (dtap_state.state) {
     case TD_SINGLE_TAP:
-      register_code16(CTLX);
+      if (isCtrlPressed) {
+        del_mods(MOD_MASK_CTRL);
+        VIM_SCROLL_HALF_DOWN();
+        set_mods(mod_state);
+      } else {
+        register_code16(CTLX);
+      }
       break;
     case TD_DOUBLE_TAP:
       register_custom_keycode(TD_dd, 12, 5);
@@ -1953,7 +2061,9 @@ void d_finished(qk_tap_dance_state_t *state, void *user_data) {
 void d_reset(qk_tap_dance_state_t *state, void *user_data) {
   switch (dtap_state.state) {
     case TD_SINGLE_TAP:
-      unregister_code16(CTLX); 
+      if (!isCtrlPressed) {
+        unregister_code16(CTLX); 
+      }
       break;
     case TD_DOUBLE_TAP:
       unregister_custom_keycode(TD_dd, 12, 5);
