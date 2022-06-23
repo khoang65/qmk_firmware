@@ -1,12 +1,32 @@
-﻿#pragma once
+﻿ /* Copyright 2022-2022 Kevin Hoang
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
+#pragma once
 
 #include "quantum.h"
 #include "khoang65.h"
-#include "vim_dows.h"
 #include "custom_keycode.h"
 
+// ** Tap Dance Definitions ** //
+enum tapdance_keycodes {
+    TD_PLACEHOLDER = SAFE_RANGE,
+  TD_yy = 101,
+  TD_dd = 102,
+};
 
-// ** TAP DANCE Definitions ** //
 typedef enum {
     TD_NONE,
     TD_UNKNOWN,
@@ -42,6 +62,7 @@ void y_reset(qk_tap_dance_state_t *state, void *user_data);
  *....##....##.....##.##...........##.....##.##.....##.##...###.##....##.##......
  *....##....##.....##.##...........########..##.....##.##....##..######..########
  */
+  // ** Tap Dance Implementation ** //
 td_state_t cur_dance(qk_tap_dance_state_t *state) {
   if (state->count == 1) return TD_SINGLE_TAP;
   else if (state->count == 2) return TD_DOUBLE_TAP;
@@ -59,7 +80,7 @@ void d_finished(qk_tap_dance_state_t *state, void *user_data) {
     case TD_SINGLE_TAP:
       if (isCtrlPressed) {
         del_mods(MOD_MASK_CTRL);
-        VIM_SCROLL_HALF_DOWN();
+        //VIM_SCROLL_HALF_DOWN();
         set_mods(mod_state);
       } else {
         register_code16(CTLX);

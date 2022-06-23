@@ -14,7 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 // ** QMK VIM Implementation for Windows ** //
 //  Based off ergodox_ez/keymaps/vim/
 //  added more functions and modified to be more robust an work with Windows
@@ -30,10 +29,6 @@ enum custom_keycodes {
   PLACEHOLDER = SAFE_RANGE,
   VIM_ESC,
   LT_TO_VIM,
-#ifdef TAP_DANCE_ENABLE
-  TD_yy,
-  TD_dd,
-#endif // !TAP_DANCE_ENABLE
   VIM_0,
   VIM_4, // `$`
   VIM_6, // `^`  
@@ -204,7 +199,7 @@ void ALT(uint16_t keycode) {
  *...##.##....##..##.....##....##.......##.....##.##...###.##....##....##.....##..##.....##.##...###.##....##
  *....###....####.##.....##....##........#######..##....##..######.....##....####..#######..##....##..######.
  */
-// NOTE: Based off ergodox_ez/keymaps/vim/ and modified to be more robust and work with Windows
+ // ** VIM Implementation ** //
 /***
  *       ####  #    # ######     ####  #    #  ####  ##### 
  *      #    # ##   # #         #      #    # #    #   #   
