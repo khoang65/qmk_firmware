@@ -31,3 +31,4 @@ enum layer_names {
 #define CTLX    LCTL(KC_X)
 #define CTLF    LCTL(KC_F)
 
+void numlock_on(void);
