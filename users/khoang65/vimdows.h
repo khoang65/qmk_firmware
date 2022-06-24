@@ -59,7 +59,8 @@ enum custom_keycodes {
   VIM_W,
   VIM_X,
   VIM_Y,
-  VIM_YI, // SAFE_RANGE + 32
+  VIM_YI,
+  NEWPLACEHOLDER, // SAFE_RANGE + 33
 };
 
 uint16_t VIM_QUEUE;

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #include "khoang65.h"
 
 // Future feature flag to toggle for Mac functionality
@@ -30,6 +30,10 @@ __attribute__((weak)) bool process_record_keymap(uint16_t keycode, keyrecord_t *
 // Then runs the _keymap's record handler if not processed here,
 // And use "NEWPLACEHOLDER" for new safe range
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+
+  /** if you want the _keymap to run first, uncomment following line and remove call at bottom of function **/
+  // if(!process_record_keymap(keycode, record)) return false;
+
   switch (keycode) {
     case KC_LSHIFT:
       if (record->event.pressed) {

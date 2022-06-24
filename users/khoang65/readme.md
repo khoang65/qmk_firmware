@@ -14,5 +14,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+@drashna's biggest fan
+
 make --jobs=1 omkbd/ergodash/rev1:khoang65
 qmk clean
