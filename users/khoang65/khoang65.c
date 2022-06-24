@@ -13,7 +13,40 @@ __attribute__((weak)) bool process_record_keymap(uint16_t keycode, keyrecord_t *
 // Then runs the _keymap's record handler if not processed here,
 // And use "NEWPLACEHOLDER" for new safe range
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    return process_record_keymap(keycode, record);
+  switch (keycode) {
+    case KC_LSHIFT:
+      if (record->event.pressed) {
+        isShiftPressed = true;
+      } else {
+        isShiftPressed = false;
+      }
+      return true; // Let QMK process the keycode as usual
+    
+    case KC_RSHIFT:
+      if (record->event.pressed) {
+        isShiftPressed = true;
+      } else {
+        isShiftPressed = false;
+      }
+      return true;
+      
+    case KC_LCTL:
+      if (record->event.pressed) {
+        isCtrlPressed = true;
+      } else {
+        isCtrlPressed = false;
+      }
+      return true;
+    
+    case KC_RCTL:
+      if (record->event.pressed) {
+        isCtrlPressed = true;
+      } else {
+        isCtrlPressed = false;
+      }
+      return true;
+  }
+  return process_record_keymap(keycode, record);
 }
 
 // ************************************************ //
@@ -46,34 +79,65 @@ void numlock_on(void) {
 }
 
 // ************************************************ //
-// ******** DYNAMIC TAP HOLD CONFIGURATION ******** //
+// ************** Leader Key Macros *************** //
 // ************************************************ //
-uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case FNT_PSCR:
-      return TAPPING_TERM + 40;
-    default:
-      return TAPPING_TERM;
-  }
+#ifdef LEADER_ENABLE
+/** (▌) PARENTHESIS **/
+void ldr_send_parenthesis_cursor_wrap(void) {
+    SEND_STRING("()" SS_TAP(X_LEFT));
 }
-bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case CS_F14:
-      return true;
-    case FNT_PSCR:
-      return true;
-    case FNT_BSLS:
-      return true;
-    default:
-      return false;
-  }
+/** [▌] SQUARE BRACKET **/
+void ldr_send_bracket_cursor_wrap(void) {
+    SEND_STRING("[]" SS_TAP(X_LEFT));
 }
+/** '▌' SINGLE QUOTE **/
+void ldr_send_quotesingle_cursor_wrap(void) {
+    SEND_STRING("''" SS_TAP(X_LEFT));
+}
+/** "▌" DOUBLE QUOTE **/
+void ldr_send_quotedouble_cursor_wrap(void) {
+    SEND_STRING("\"\"" SS_TAP(X_LEFT));
+}
+/** {▌} CURLY BRACE **/
+void ldr_send_curly_brace_cursor_wrap(void) {
+    SEND_STRING("{}" SS_TAP(X_LEFT));
+}
+/** [▌] SQUARE BRACKET **/
+void ldr_send_squarebracket_cursor_wrap(void) {
+    SEND_STRING("[]" SS_TAP(X_LEFT));
+}
+/** <▌> ANGLE BRACKET **/
+void ldr_send_angle_bracket_cursor_wrap(void) {
+    SEND_STRING("<>" SS_TAP(X_LEFT));
+}
+/** `▌` GRAVE **/
+void ldr_send_grave_cursor_wrap(void) {
+    SEND_STRING("``" SS_TAP(X_LEFT));
+}
+/** /▌/ FORWARD SLASH **/
+void ldr_send_forward_slash_cursor_wrap(void) {
+    SEND_STRING("//" SS_TAP(X_LEFT));
+}
+/** *▌* ASTERISK **/
+void ldr_send_asterisk_cursor_wrap(void) {
+    SEND_STRING("**" SS_TAP(X_LEFT));
+}
+/** @▌@ AT **/
+void ldr_send_at_cursor_wrap(void) {
+    SEND_STRING("@@" SS_TAP(X_LEFT));
+}
+/** %▌% PERCENT **/
+void ldr_send_percent_cursor_wrap(void) {
+    SEND_STRING("%%" SS_TAP(X_LEFT));
+}
+#endif // LEADER_ENABLE
+
 
 // ************************************************ //
 // ************* LAYER RGB INDICATORS ************* //
 // ************************************************ //
 #ifdef RGB_MATRIX_ENABLE
-/* Leader Key per-key LED  */
+/** Leader Key per-key LED  **/
 /*
 void rgb_matrix_indicators_user(void) { 
     if (isLeader) {
@@ -87,7 +151,7 @@ void rgb_matrix_indicators_user(void) {
 #endif // !RGB_MATRIX_ENABLE
 
 #ifdef RGBLIGHT_ENABLE
-/* WIP Code for layer state LED underglow */
+/** WIP Code for layer state LED underglow **/
 /*
 layer_state_t layer_state_set_user(layer_state_t state) {
     switch (get_highest_layer(state)) {

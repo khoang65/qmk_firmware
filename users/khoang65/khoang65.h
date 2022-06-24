@@ -31,4 +31,24 @@ enum layer_names {
 #define CTLX    LCTL(KC_X)
 #define CTLF    LCTL(KC_F)
 
+// Function for turning on numlock on startup
 void numlock_on(void);
+
+// Leader Key function Declaration
+#ifdef LEADER_ENABLE
+// Cursor Wrap Functions
+void ldr_send_parenthesis_cursor_wrap(void);
+void ldr_send_bracket_cursor_wrap(void);
+void ldr_send_quotesingle_cursor_wrap(void);
+void ldr_send_quotedouble_cursor_wrap(void);
+void ldr_send_curly_brace_cursor_wrap(void);
+void ldr_send_squarebracket_cursor_wrap(void);
+void ldr_send_angle_bracket_cursor_wrap(void);
+void ldr_send_grave_cursor_wrap(void);
+void ldr_send_forward_slash_cursor_wrap(void);
+void ldr_send_asterisk_cursor_wrap(void);
+void ldr_send_at_cursor_wrap(void);
+void ldr_send_percent_cursor_wrap(void);
+#endif // LEADER_ENABLE
+
+

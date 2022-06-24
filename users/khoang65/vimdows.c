@@ -2,14 +2,18 @@
 
 uint16_t VIM_QUEUE = KC_NO;
 
-// Defaults bottom-most layer 0
+// Defaults bottom-most layer, 0
 int _VIM_INSERT_LAYER = 0;
 
+// Reconfigurable functions here, for keymap customization
+// This allows for a global, userspace functions, and continued
+// customization of the keymap.  Use _keymap instead of _user
+// functions in the keymaps
 __attribute__((weak)) void matrix_init_keymap(void) {}
 
+// Call user matrix init, then call the keymap's init function
 void matrix_init_user(void) {
   VIM_LEADER(KC_NO);
-  
   matrix_init_keymap();
 }
 
@@ -89,8 +93,8 @@ void ALT(uint16_t keycode) {
  */
  
 /**
- * Vim-like `append` command.
- * Works by sending →
+ * Vim-like `append` command
+ * Sends →
  */
 void VIM_APPEND(int insert_layer) {
   print("\e[31ma\e[0m");
@@ -146,7 +150,7 @@ void VIM_LEFT(void) {
 }
 
 /**
- * Vim-like `open` command.
+ * Vim-like `open` command
  * Works by sending `End` to move to the end of the line, `Enter` to open a new line,
  * then switching to insert mode.
  */

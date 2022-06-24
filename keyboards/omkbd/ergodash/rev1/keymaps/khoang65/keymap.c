@@ -206,40 +206,7 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
   //bool SHIFTED = (keyboard_report->mods & MOD_BIT(KC_LSFT)) | (keyboard_report->mods & MOD_BIT(KC_RSFT));
   //bool CTRLED = (keyboard_report->mods & MOD_BIT(KC_LCTL)) | (keyboard_report->mods & MOD_BIT(KC_RCTL));
 
-  switch (keycode) {
-    
-    case KC_LSHIFT:
-      if (PRESSED) {
-        isShiftPressed = true;
-      } else {
-        isShiftPressed = false;
-      }
-      return true; // Let QMK process the keycode as usual
-    
-    case KC_RSHIFT:
-      if (PRESSED) {
-        isShiftPressed = true;
-      } else {
-        isShiftPressed = false;
-      }
-      return true;
-      
-    case KC_LCTL:
-      if (PRESSED) {
-        isCtrlPressed = true;
-      } else {
-        isCtrlPressed = false;
-      }
-      return true;
-    
-    case KC_RCTL:
-      if (PRESSED) {
-        isCtrlPressed = true;
-      } else {
-        isCtrlPressed = false;
-      }
-      return true; 
-    
+  switch (keycode) {    
     case VIM_ESC:
       if (PRESSED) {
         switch(VIM_QUEUE){
@@ -293,6 +260,9 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
 
+    // ************************************************ //
+    // ******** vimdows.h KEYCODE Implementation ****** //
+    // ************************************************ //
     case VIM_0:
       if (PRESSED) {
         VIM_START_OF_LINE();
@@ -614,66 +584,30 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
   }
 } 
 
+// ************************************************ //
+// ******** DYNAMIC TAP HOLD CONFIGURATION ******** //
+// ************************************************ //
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+  switch (keycode) {
+    case FNT_PSCR:
+      return TAPPING_TERM + 40;
+    default:
+      return TAPPING_TERM;
+  }
+}
+bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
+  switch (keycode) {
+    case CS_F14:
+      return true;
+    case FNT_PSCR:
+      return true;
+    case FNT_BSLS:
+      return true;
+    default:
+      return false;
+  }
+}
 
-/****
- *.##.......########..########.....########.##.....##.##....##..######..########.####..#######..##....##..######.
- *.##.......##.....##.##.....##....##.......##.....##.###...##.##....##....##.....##..##.....##.###...##.##....##
- *.##.......##.....##.##.....##....##.......##.....##.####..##.##..........##.....##..##.....##.####..##.##......
- *.##.......##.....##.########.....######...##.....##.##.##.##.##..........##.....##..##.....##.##.##.##..######.
- *.##.......##.....##.##...##......##.......##.....##.##..####.##..........##.....##..##.....##.##..####.......##
- *.##.......##.....##.##....##.....##.......##.....##.##...###.##....##....##.....##..##.....##.##...###.##....##
- *.########.########..##.....##....##........#######..##....##..######.....##....####..#######..##....##..######.
- */
-#ifdef LEADER_ENABLE
-// ***** Cursor Wrap Functions ***** //
-/* (▌) PARENTHESIS */
-void ldr_send_parenthesis_cursor_wrap(void) {
-    SEND_STRING("()" SS_TAP(X_LEFT));
-}
-/* [▌] SQUARE BRACKET */
-void ldr_send_bracket_cursor_wrap(void) {
-    SEND_STRING("[]" SS_TAP(X_LEFT));
-}
-/* '▌' SINGLE QUOTE */
-void ldr_send_quotesingle_cursor_wrap(void) {
-    SEND_STRING("''" SS_TAP(X_LEFT));
-}
-/* "▌" DOUBLE QUOTE */
-void ldr_send_quotedouble_cursor_wrap(void) {
-    SEND_STRING("\"\"" SS_TAP(X_LEFT));
-}
-/* {▌} CURLY BRACE */
-void ldr_send_curly_brace_cursor_wrap(void) {
-    SEND_STRING("{}" SS_TAP(X_LEFT));
-}
-/* [▌] SQUARE BRACKET */
-void ldr_send_squarebracket_cursor_wrap(void) {
-    SEND_STRING("[]" SS_TAP(X_LEFT));
-}
-/* <▌> ANGLE BRACKET */
-void ldr_send_angle_bracket_cursor_wrap(void) {
-    SEND_STRING("<>" SS_TAP(X_LEFT));
-}
-/* `▌` GRAVE */
-void ldr_send_grave_cursor_wrap(void) {
-    SEND_STRING("``" SS_TAP(X_LEFT));
-}
-/* /▌/ FORWARD SLASH */
-void ldr_send_forward_slash_cursor_wrap(void) {
-    SEND_STRING("//" SS_TAP(X_LEFT));
-}
-/* *▌* ASTERISK */
-void ldr_send_asterisk_cursor_wrap(void) {
-    SEND_STRING("**" SS_TAP(X_LEFT));
-}
-/* @▌@ AT */
-void ldr_send_at_cursor_wrap(void) {
-    SEND_STRING("@@" SS_TAP(X_LEFT));
-}
-/* %▌% PERCENT */
-void ldr_send_percent_cursor_wrap(void) {
-    SEND_STRING("%%" SS_TAP(X_LEFT));
-}
 
 /****
  *.##.....##....###....########.########..####.##.....##.....######...######.....###....##....##
@@ -688,17 +622,27 @@ void matrix_init_keymap(void) {
   //debug_enable = true;
 };
 
+// ************************************************ //
+// ********** Leader Key Implementation *********** //
+// ************************************************ //
+#ifdef LEADER_ENABLE
 LEADER_EXTERNS(); // Keep this line above matrix_scan_user
 
 void matrix_scan_user(void) {
+
   LEADER_DICTIONARY() {
+
+    leader_start();
     leading = false;
-    /* Caps Word */
+
+    
+    // ***** Caps Word ***** //
     // Double tap LDR for CAPS_WORD
     SEQ_ONE_KEY(KC_LEAD) {
       caps_word_on();
     }
-    /* Caps Lock */
+
+    // ***** Caps Lock ***** //
     // Triple tap LDR for CAPSLOCK
     SEQ_TWO_KEYS(KC_LEAD, KC_LEAD) {
       tap_code(KC_CAPS);
@@ -712,20 +656,15 @@ void matrix_scan_user(void) {
     }
 
     // ***** Cursor Wrap Macros by Symbol ***** //
-    // NOTE: Pending removal
-    /* (▌) PARENTHESIS */
     SEQ_TWO_KEYS(KC_LSFT, KC_9) {
       ldr_send_parenthesis_cursor_wrap();
     }
-    /* [▌] SQUARE BRACKET */
     SEQ_ONE_KEY(KC_LBRC) {
       ldr_send_bracket_cursor_wrap();
     }
-    /* '▌' SINGLE QUOTE */
     SEQ_ONE_KEY(KC_QUOT) {
       ldr_send_quotesingle_cursor_wrap();
     }
-    /* "▌" DOUBLE QUOTE */
     SEQ_TWO_KEYS(KC_LSFT, KC_QUOT) {
       ldr_send_quotedouble_cursor_wrap();
     }
@@ -733,55 +672,45 @@ void matrix_scan_user(void) {
     // ***** Cursor Wrap Macros by Comfort ***** //
     // NOTE: Use the Symbol Layer as a Reference
     
-    /* R4; Number Row*/
-    /* @▌@ AT */
+    /** R4; NUMBER ROW **/
     SEQ_ONE_KEY(KC_2) {
-      ldr_send_at_cursor_wrap();
+      ldr_send_at_cursor_wrap(); // @▌@ AT
     }
-    /* %▌% PERCENT */
     SEQ_ONE_KEY(KC_5) {
-      ldr_send_percent_cursor_wrap();
+      ldr_send_percent_cursor_wrap(); // %▌%
     }
     
-    /* R3; Alpha */
-    /* *▌* ASTERISK */
+    /** R3; TOP ROW **/
     SEQ_ONE_KEY(KC_E) {
-      ldr_send_asterisk_cursor_wrap();
+      ldr_send_asterisk_cursor_wrap(); // *▌*
     }
     
-    /* R2; Home Row */
-    /* '▌' SINGLE QUOTE */
+    /** R2; HOME ROW **/
     SEQ_ONE_KEY(KC_F4) {
-      ldr_send_quotesingle_cursor_wrap();
+      ldr_send_quotesingle_cursor_wrap(); // '▌' 
     }
-    /* `▌` GRAVE */
     SEQ_ONE_KEY(KC_G) {
-      ldr_send_grave_cursor_wrap();
+      ldr_send_grave_cursor_wrap(); // `▌` 
     }
-    /* (▌) PARENTHESIS */
     SEQ_ONE_KEY(KC_F) {
-      ldr_send_parenthesis_cursor_wrap();
+      ldr_send_parenthesis_cursor_wrap(); // (▌) 
     }
-    /* {▌} CURLY BRACE */
     SEQ_ONE_KEY(KC_D) {
-      ldr_send_curly_brace_cursor_wrap();
+      ldr_send_curly_brace_cursor_wrap(); // {▌} 
     }
-    /* <▌> ANGLE BRACKET */
     SEQ_ONE_KEY(KC_S) {
-      ldr_send_angle_bracket_cursor_wrap();
+      ldr_send_angle_bracket_cursor_wrap(); // <▌> 
     }
-    /* "▌" DOUBLE QUOTE */
     SEQ_ONE_KEY(KC_A) {
-      ldr_send_quotedouble_cursor_wrap();
+      ldr_send_quotedouble_cursor_wrap(); // "▌" 
     }
     
-    /* R1; Alpha */
-    /* /▌/ FORWARD SLASH */
+    /** R1; BOTTOM ROW **/
     SEQ_ONE_KEY(KC_V) {
-      ldr_send_forward_slash_cursor_wrap();
+      ldr_send_forward_slash_cursor_wrap(); //
     }
     
-    /* R0; Mod */
+    /** R0; MOD ROW **/
     
     leader_end();
   }

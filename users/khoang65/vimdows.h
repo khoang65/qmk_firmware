@@ -23,9 +23,6 @@
 #include "print.h"
 #include "quantum.h"
 #include "quantum_keycodes.h"
-//#include "khoang65.h" // included for the layer_move(_BASE) functions for vim-like `insert` mode
-                      //  to remove dependancy, "_BASE" should be swapped with user-desired 
-                      //  layer in the vimdows.c implementation
 
 // ** VIM Definitions ** //
 int _VIM_INSERT_LAYER;

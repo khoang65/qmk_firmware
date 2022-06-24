@@ -17,11 +17,11 @@
 #pragma once
 
 #include "quantum.h"
-#include "khoang65.h"
+#include "khoang65.h" // included for the is<ModPressed> flags
 #include "custom_keycode.h"
 
 // ** Tap Dance Definitions ** //
-enum tapdance_keycodes {
+enum tapdance_index {
   TD_PLACEHOLDER = SAFE_RANGE+1000,
   TD_yy = SAFE_RANGE+1001,
   TD_dd = SAFE_RANGE+1002,
