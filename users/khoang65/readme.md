@@ -1,20 +1,10 @@
- Copyright 2022 Kevin Hoang (@khoang65) <khoang65@gmail.com>
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 2 of the License, or
- (at your option) any later version.
+# KHOANG65's Userspace
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+Code for (currently windows-only) VIM-like emulation: VIMDOWS lol
+- Heavily based on the `ergodox_ez/vim` keymap
+- changed to be more robust, to work with windows, and added additional features and functionality
+  
+Can be paired with (optional) tapdance code to mimic VIM's `d` and `y` single tap
 
 @drashna's biggest fan
-
-make --jobs=1 omkbd/ergodash/rev1:khoang65
-qmk clean
