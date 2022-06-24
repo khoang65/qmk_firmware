@@ -11,7 +11,6 @@ uint8_t mod_state;
 extern bool isShiftPressed; 
 extern bool isCtrlPressed;  
 
-
 enum layer_names {
     _BASE = 0,
     _FN,   // = 1

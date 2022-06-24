@@ -22,9 +22,9 @@
 
 // ** Tap Dance Definitions ** //
 enum tapdance_keycodes {
-  TD_PLACEHOLDER = 100,
-  TD_yy = 101,
-  TD_dd = 102,
+  TD_PLACEHOLDER = SAFE_RANGE+1000,
+  TD_yy = SAFE_RANGE+1001,
+  TD_dd = SAFE_RANGE+1002,
 };
 
 typedef enum {

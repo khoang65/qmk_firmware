@@ -322,10 +322,10 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
     case VIM_A:
       if (isShiftPressed && PRESSED) { 
         del_mods(MOD_MASK_SHIFT);
-        VIM_APPEND_LINE();
+        VIM_APPEND_LINE(_BASE);
         set_mods(mod_state);      
       } else if (PRESSED) {
-        VIM_APPEND();
+        VIM_APPEND(_BASE);
       }
       return false;
 
@@ -342,7 +342,7 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
               PRESS(KC_LEFT);
             }
             break;
-          case VIM_C: VIM_CHANGE_BACK(); break;
+          case VIM_C: VIM_CHANGE_BACK(_BASE); break;
           case VIM_D: VIM_DELETE_BACK(); break;
           case VIM_V: VIM_VISUAL_BACK(); break;
         }
@@ -359,13 +359,13 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
           case KC_NO: 
             if(isShiftPressed) {
               del_mods(MOD_MASK_SHIFT);
-              VIM_CHANGE_TO_EOL();
+              VIM_CHANGE_TO_EOL(_BASE);
               set_mods(mod_state);
             } else {
               VIM_LEADER(VIM_C);
             }
             break;
-          case VIM_C: VIM_CHANGE_WHOLE_LINE(); break;
+          case VIM_C: VIM_CHANGE_WHOLE_LINE(_BASE); break;
         }
       }
       return false;
@@ -395,7 +395,7 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
       if (PRESSED) {
         switch (VIM_QUEUE) {
           case KC_NO: PRESS(KC_LCTL); PRESS(KC_RIGHT); break;
-          case VIM_C: VIM_CHANGE_END(); break;
+          case VIM_C: VIM_CHANGE_END(_BASE); break;
           case VIM_D: VIM_DELETE_END(); break;
           case VIM_V: VIM_VISUAL_END(); break;
           case VIM_Y: VIM_YANK_END(); break;
@@ -437,7 +437,7 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
       if (PRESSED) {
         switch (VIM_QUEUE) {
           case KC_NO: PRESS(KC_LEFT); break;
-          case VIM_C: VIM_CHANGE_LEFT(); break;
+          case VIM_C: VIM_CHANGE_LEFT(_BASE); break;
           case VIM_D: VIM_DELETE_LEFT(); break;
           case VIM_V: VIM_VISUAL_LEFT(); break;
           case VIM_Y: VIM_YANK_LEFT(); break;
@@ -471,7 +471,7 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
               PRESS(KC_DOWN);
             }
             break;
-          case VIM_C: VIM_CHANGE_DOWN(); break;
+          case VIM_C: VIM_CHANGE_DOWN(_BASE); break;
           case VIM_D: VIM_DELETE_DOWN(); break;
           case VIM_V: VIM_VISUAL_DOWN(); break;
           case VIM_Y: VIM_YANK_DOWN(); break;
@@ -485,7 +485,7 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
       if (PRESSED) {
         switch (VIM_QUEUE) {
           case KC_NO: PRESS(KC_UP); break;
-          case VIM_C: VIM_CHANGE_UP(); break;
+          case VIM_C: VIM_CHANGE_UP(_BASE); break;
           case VIM_D: VIM_DELETE_UP(); break;
           case VIM_V: VIM_VISUAL_UP(); break;
           case VIM_Y: VIM_YANK_UP(); break;
@@ -499,7 +499,7 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
       if (PRESSED) {
         switch (VIM_QUEUE) {
           case KC_NO: PRESS(KC_RIGHT); break;
-          case VIM_C: VIM_CHANGE_RIGHT(); break;
+          case VIM_C: VIM_CHANGE_RIGHT(_BASE); break;
           case VIM_D: VIM_DELETE_RIGHT(); break;
           case VIM_V: VIM_VISUAL_RIGHT(); break;
           case VIM_Y: VIM_YANK_RIGHT(); break;
@@ -513,10 +513,10 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
       if (PRESSED) { 
         if (isShiftPressed) {
           del_mods(MOD_MASK_SHIFT); 
-          VIM_OPEN_ABOVE(); 
+          VIM_OPEN_ABOVE(_BASE); 
           set_mods(mod_state);
         } else {
-          VIM_OPEN(); 
+          VIM_OPEN(_BASE); 
         }
       }
       return false;
@@ -544,10 +544,10 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
       if (PRESSED) { 
         if (isShiftPressed) {
           del_mods(MOD_MASK_SHIFT); 
-          VIM_CHANGE_WHOLE_LINE();
+          VIM_CHANGE_WHOLE_LINE(_BASE);
           set_mods(mod_state);
         } else {
-          VIM_SUBSTITUTE();
+          VIM_SUBSTITUTE(_BASE);
         }
       }
       return false;
@@ -572,8 +572,8 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
       if (PRESSED) {
         switch (VIM_QUEUE) {
           case KC_NO: VIM_WORD(); break;
-          case VIM_C: VIM_CHANGE_WORD(); break;
-          case VIM_CI: VIM_CHANGE_INNER_WORD(); break;
+          case VIM_C: VIM_CHANGE_WORD(_BASE); break;
+          case VIM_CI: VIM_CHANGE_INNER_WORD(_BASE); break;
           case VIM_D: VIM_DELETE_WORD(); break;
           case VIM_DI: VIM_DELETE_INNER_WORD(); break;
           case VIM_V: VIM_VISUAL_WORD(); break;
