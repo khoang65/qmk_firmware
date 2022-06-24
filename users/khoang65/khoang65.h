@@ -2,17 +2,15 @@
 
 #include QMK_KEYBOARD_H
 
-// Future flag for Mac use
-bool onMac = false;
-
-// Flags to determine if the key is currently physically pressed
-//   used so modifiers can be held to send repeated modifier'd actions
-bool isShiftPressed = false; 
-bool isCtrlPressed = false;  
-
 // Initialize variable holding the binary
 // representation of active modifiers.
 uint8_t mod_state;
+
+// Flags to determine if the key is currently physically pressed
+//   used so modifiers can be held to send repeated modifier'd actions
+extern bool isShiftPressed; 
+extern bool isCtrlPressed;  
+
 
 enum layer_names {
     _BASE = 0,
