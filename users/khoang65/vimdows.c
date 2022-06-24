@@ -5,6 +5,14 @@ uint16_t VIM_QUEUE = KC_NO;
 // Defaults bottom-most layer 0
 int _VIM_INSERT_LAYER = 0;
 
+__attribute__((weak)) void matrix_init_keymap(void) {}
+
+void matrix_init_user(void) {
+  VIM_LEADER(KC_NO);
+  
+  matrix_init_keymap();
+}
+
 /**
  * Sets the `VIM_QUEUE` variable to the incoming keycode.
  * Pass `KC_NO` to cancel the operation.

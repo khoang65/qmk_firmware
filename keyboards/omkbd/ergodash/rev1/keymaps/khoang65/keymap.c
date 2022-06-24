@@ -614,66 +614,6 @@ bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
   }
 } 
 
-// ************************************************ //
-// ******** DYNAMIC TAP HOLD CONFIGURATION ******** //
-// ************************************************ //
-uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case FNT_PSCR:
-      return TAPPING_TERM + 40;
-    default:
-      return TAPPING_TERM;
-  }
-}
-bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case CS_F14:
-      return true;
-    case FNT_PSCR:
-      return true;
-    case FNT_BSLS:
-      return true;
-    default:
-      return false;
-  }
-}
-
-// ************************************************ //
-// ************* LAYER RGB INDICATORS ************* //
-// ************************************************ //
-#ifdef RGB_MATRIX_ENABLE
-/* Leader Key per-key LED  */
-/*
-void rgb_matrix_indicators_user(void) { 
-    if (isLeader) {
-        rgb_matrix_set_color_hsv(14, 999, 999, 999, 1); // CONFIG
-        rgb_matrix_set_color_hsv(30, 999, 999, 999, 1); // CONFIG
-    } else {
-        rgb_matrix_set_color_hsv(14, 999, 999, 999, led_dim_ratio); // CONFIG
-    }  
-}
-*/
-#endif // !RGB_MATRIX_ENABLE
-
-#ifdef RGBLIGHT_ENABLE
-/* WIP Code for layer state LED underglow */
-/*
-layer_state_t layer_state_set_user(layer_state_t state) {
-    switch (get_highest_layer(state)) {
-    case _BASE:
-        rgblight_sethsv_noeeprom(HSV_GOLD);
-        break;
-    case _ADJUST:
-        rgblight_sethsv_noeeprom(HSV_RED);
-        break;
-    default: //  for any other layers, or the default layer
-        rgblight_sethsv_noeeprom(HSV_OFF);
-        break;
-    }
-  return state;
-}
-*/
-#endif // !RGBLIGHT_ENABLE
 
 /****
  *.##.......########..########.....########.##.....##.##....##..######..########.####..#######..##....##..######.
@@ -744,9 +684,8 @@ void ldr_send_percent_cursor_wrap(void) {
  *.##.....##.##.....##....##....##....##...##...##...##.....##....##.##....##.##.....##.##...###
  *.##.....##.##.....##....##....##.....##.####.##.....##.....######...######..##.....##.##....##
  */
-void matrix_init_user(void) {
+void matrix_init_keymap(void) {
   //debug_enable = true;
-  VIM_LEADER(KC_NO);
 };
 
 LEADER_EXTERNS(); // Keep this line above matrix_scan_user
