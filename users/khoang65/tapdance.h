@@ -1,4 +1,4 @@
-﻿ /* Copyright 2022-2022 Kevin Hoang
+﻿ /* Copyright 2022 Kevin Hoang (@khoang65) <khoang65@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
