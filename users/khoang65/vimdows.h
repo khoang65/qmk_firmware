@@ -23,6 +23,7 @@
 #include "print.h"
 #include "quantum.h"
 #include "quantum_keycodes.h"
+#include "khoang65.h"
 
 // ** VIM Definitions ** //
 enum custom_keycodes {

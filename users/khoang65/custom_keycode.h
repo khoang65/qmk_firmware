@@ -15,7 +15,7 @@
  */
 
 
-/* 
+/**
  * QMK functions can't register custom keycodes, but we can setup a keyrecord_t and call process_record_kb() directly.
  * Unknowns:
  *  Do we need to set the column and row for each keycode?

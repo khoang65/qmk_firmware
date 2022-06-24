@@ -1,6 +1,6 @@
 ﻿#include QMK_KEYBOARD_H
 #include "khoang65.h"
-#include "vim_dows.h"
+#include "vimdows.h"
 #include "tapdance_keymap.h"
 
 bool isLeader = false;
@@ -301,8 +301,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     
     case VIM_4:
       if (isShiftPressed && PRESSED) {
+        // First temporarily canceling both shifts so that
+        // shift isn't applied to the macro
         del_mods(MOD_MASK_SHIFT);
         VIM_END_OF_LINE();
+        // Reapplying modifier state so that the held shift key(s)
+        // still work even after VIM_END_OF_LINE() is run
         set_mods(mod_state);
       }
       return false;
