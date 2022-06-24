@@ -95,3 +95,8 @@ compile_commands.json
 # VIA(L) json files that don't belong in QMK repo
 via*.json
 keyboards/omkbd/ergodash/rev1/keymaps/khoang65/keymap_notes.txt
+keyboards/omkbd/ergodash/rev1/keymaps/khoang65/kb-layout-editor/khoang_BASE-FN-VIM.json
+keyboards/omkbd/ergodash/rev1/keymaps/khoang65/keyboard-layout-editor/khoang_BASE-FN-VIM.json
+keyboards/omkbd/ergodash/rev1/keymaps/khoang65/keyboard-layout-editor/khoang_BASE-FN-VIM.png
+keyboards/omkbd/ergodash/rev1/keymaps/khoang65/keyboard-layout-editor/khoang_BASE-FN-VIM.json
+keyboards/omkbd/ergodash/rev1/keymaps/khoang65/keyboard-layout-editor/khoang_BASE-FN-VIM.png
